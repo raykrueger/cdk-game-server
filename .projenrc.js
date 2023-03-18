@@ -4,7 +4,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   authorAddress: 'raykrueger@gmail.com',
   cdkVersion: '2.69.0',
   defaultReleaseBranch: 'main',
-  name: 'cdk-game-server',
+  name: '@raykrueger/cdk-game-server',
   repositoryUrl: 'https://github.com/raykrueger/cdk-game-server.git',
   releaseToNpm: false,
   catalog: {
