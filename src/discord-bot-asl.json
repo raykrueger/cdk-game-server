@@ -1,0 +1,138 @@
+{
+  "Comment": "A description of my state machine",
+  "StartAt": "SubCommandChoice",
+  "States": {
+    "SubCommandChoice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.SubCommand",
+          "StringEquals": "status",
+          "Next": "DescribeServices"
+        },
+        {
+          "Variable": "$.SubCommand",
+          "StringEquals": "start",
+          "Next": "UpdateService"
+        }
+      ],
+      "Default": "WutMessage"
+    },
+    "WutMessage": {
+      "Type": "Pass",
+      "Next": "SendDiscordResponse",
+      "Result": {
+        "Message": "Wut?"
+      },
+      "ResultPath": "$.Discord"
+    },
+    "UpdateService": {
+      "Type": "Task",
+      "Next": "RunningCheck",
+      "Parameters": {
+        "Cluster": "",
+        "Service": "",
+        "DesiredCount": 1
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ecs:updateService",
+      "ResultSelector": {
+        "DesiredCount.$": "$.Service.DesiredCount",
+        "RunningCount.$": "$.Service.RunningCount"
+      },
+      "ResultPath": "$.Service"
+    },
+    "RunningCheck": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Service.RunningCount",
+          "NumericGreaterThan": 0,
+          "Next": "ServerAlreadyRunningMessage"
+        }
+      ],
+      "Default": "ServerStartedMessage"
+    },
+    "ServerAlreadyRunningMessage": {
+      "Type": "Pass",
+      "Next": "SendDiscordResponse",
+      "Result": {
+        "Message": "Server is already running, get in there!"
+      },
+      "ResultPath": "$.Discord"
+    },
+    "ServerStartedMessage": {
+      "Type": "Pass",
+      "Next": "SendDiscordResponse",
+      "Result": {
+        "Message": "Server is starting, give it 10 minutes"
+      },
+      "ResultPath": "$.Discord"
+    },
+    "DescribeServices": {
+      "Type": "Task",
+      "Parameters": {
+        "Cluster": "",
+        "Services": []
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ecs:describeServices",
+      "Next": "Choice",
+      "ResultSelector": {
+        "RunningCount.$": "$.Services[0].RunningCount",
+        "DesiredCount.$": "$.Services[0].DesiredCount"
+      },
+      "ResultPath": "$.Service"
+    },
+    "Choice": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Variable": "$.Service.RunningCount",
+          "NumericGreaterThan": 0,
+          "Next": "ServerIsUpMessage"
+        }
+      ],
+      "Default": "ServerisDownMessage"
+    },
+    "ServerisDownMessage": {
+      "Type": "Pass",
+      "Next": "SendDiscordResponse",
+      "Result": {
+        "Message": "Server is Down"
+      },
+      "ResultPath": "$.Discord"
+    },
+    "ServerIsUpMessage": {
+      "Type": "Pass",
+      "Next": "SendDiscordResponse",
+      "Result": {
+        "Message": "Server is Up!"
+      },
+      "ResultPath": "$.Discord"
+    },
+    "SendDiscordResponse": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::lambda:invoke",
+      "OutputPath": "$.Payload",
+      "Parameters": {
+        "Payload.$": "$",
+        "FunctionName": ""
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "Lambda.ServiceException",
+            "Lambda.AWSLambdaException",
+            "Lambda.SdkClientException"
+          ],
+          "IntervalSeconds": 2,
+          "MaxAttempts": 6,
+          "BackoffRate": 2
+        }
+      ],
+      "Next": "Success"
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

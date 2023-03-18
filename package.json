@@ -4,6 +4,10 @@
     "type": "git",
     "url": "https://github.com/raykrueger/cdk-game-server.git"
   },
+  "bin": {
+    "cdk-satisfactory.ts": "bin/cdk-satisfactory.ts",
+    "cdk.out": "bin/cdk.out"
+  },
   "scripts": {
     "build": "npx projen build",
     "bump": "npx projen bump",
@@ -38,7 +42,7 @@
     "@types/node": "^14",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
-    "aws-cdk-lib": "2.1.0",
+    "aws-cdk-lib": "2.69.0",
     "constructs": "10.0.5",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.7",
@@ -57,9 +61,17 @@
     "typescript": "^5.0.2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.1.0",
+    "aws-cdk-lib": "^2.69.0",
     "constructs": "^10.0.5"
   },
+  "dependencies": {
+    "@aws-solutions-constructs/aws-apigateway-lambda": "^2.34.0",
+    "@matthewbonig/state-machine": "0.0.21",
+    "@raykrueger/cdk-fargate-public-dns": "0.0.13"
+  },
+  "bundledDependencies": [
+    "@matthewbonig/state-machine"
+  ],
   "keywords": [
     "cdk"
   ],
