@@ -1,12 +1,8 @@
 {
-  "name": "cdk-game-server",
+  "name": "@raykrueger/cdk-game-server",
   "repository": {
     "type": "git",
     "url": "https://github.com/raykrueger/cdk-game-server.git"
-  },
-  "bin": {
-    "cdk-satisfactory.ts": "bin/cdk-satisfactory.ts",
-    "cdk.out": "bin/cdk.out"
   },
   "scripts": {
     "build": "npx projen build",
@@ -20,7 +16,6 @@
     "eslint": "npx projen eslint",
     "package": "npx projen package",
     "package-all": "npx projen package-all",
-    "package:js": "npx projen package:js",
     "post-compile": "npx projen post-compile",
     "post-upgrade": "npx projen post-upgrade",
     "pre-compile": "npx projen pre-compile",
@@ -127,6 +122,10 @@
       "outDir": "lib",
       "rootDir": "src"
     }
+  },
+  "awscdkio": {
+    "twitter": "raykrueger",
+    "announce": false
   },
   "resolutions": {
     "@types/prettier": "2.6.0",
