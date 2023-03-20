@@ -78,6 +78,8 @@ export interface GameServerProps {
   readonly gamePorts: GamePort[];
   readonly additionalArgs?: string[];
   readonly containerEnv?: { [key: string]: string };
+  readonly containerSecrets?: { [key: string]: ecs.Secret};
+
 }
 
 /**
@@ -108,6 +110,7 @@ export class GameServer extends Construct {
   readonly steamArgs?: string;
 
   readonly containerEnv: { [key: string]: string };
+  readonly containerSecrets?: { [key: string]: ecs.Secret};
 
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
@@ -142,6 +145,7 @@ export class GameServer extends Construct {
     this.gamePorts = props.gamePorts;
     this.additionalArgs = props.additionalArgs;
     this.containerEnv = props.containerEnv || {};
+    this.containerSecrets = props.containerSecrets || {};
 
     //Define our EFS file system
     const fs = new efs.FileSystem(this, 'GameFileSystem', {
@@ -186,6 +190,7 @@ export class GameServer extends Construct {
       logging: this.logging,
       command: this.additionalArgs,
       environment: this.containerEnv,
+      secrets: this.containerSecrets,
     });
 
     containerDef.addMountPoints({ sourceVolume: 'efsVolume', containerPath: this.mountTarget, readOnly: false });
