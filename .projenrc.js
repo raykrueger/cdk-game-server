@@ -1,4 +1,5 @@
 const { awscdk } = require('projen');
+const { NpmAccess } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
@@ -7,6 +8,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   name: '@raykrueger/cdk-game-server',
   repositoryUrl: 'https://github.com/raykrueger/cdk-game-server.git',
   releaseToNpm: true,
+  npmAccess: NpmAccess.PUBLIC,
   catalog: {
     announce: false,
     twitter: 'raykrueger',
@@ -31,6 +33,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   eslintOptions: {
     ignorePatterns: ['test/'],
   },
-
 });
+
 project.synth();
