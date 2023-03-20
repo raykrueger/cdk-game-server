@@ -156,14 +156,14 @@ your fully qualified A Record you created previously. The hostedZone is the ID
 from Route 53, it usually starts with a _Z_.
 
 ``` typescript
-      //previous code cut for brevity
-      mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
-      dnsConfig: {
-        domainName: 'satisfactory.example.com',
-        hostzedZone: 'ZXXXXXXXXXXXXXXXXXXXX',
-        //optional Delete this if using Route 53 the same account
-        //assumedRole: 'arn:aws:iam::111111111111:role/cross-account-r53-update'
-      },
+//previous code cut for brevity
+mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+dnsConfig: {
+  domainName: 'satisfactory.example.com',
+  hostzedZone: 'ZXXXXXXXXXXXXXXXXXXXX',
+  //optional Delete this if using Route 53 the same account
+  //assumedRole: 'arn:aws:iam::111111111111:role/cross-account-r53-update'
+},
 ```
 
 Optionally we can update Route 53 in a different account, see 
@@ -242,12 +242,12 @@ will show up.
 ### Deploy the Discord Bot
 
 ``` typescript
-      //previous code cut for brevity
-      mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
-      discord: {
-        commandName: 'satisfactory',
-        secretName: 'SatisfactoryBotSecret'
-      },
+//previous code cut for brevity
+mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+discord: {
+  commandName: 'satisfactory',
+  secretName: 'SatisfactoryBotSecret'
+},
 ```
 
 Where commandName is the command as it will appear in Discord, so
@@ -296,12 +296,12 @@ down.
 If your chosen game server container is giving you trouble, you can add logging
 
 ``` typescript
-      //previous code cut for brevity
-      mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
-      logging: new AwsLogDriver({
-        streamPrefix: 'SatisfactoryLogs',
-        logRetention: RetentionDays.THREE_DAYS,
-      }),
+//previous code cut for brevity
+mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+logging: new AwsLogDriver({
+  streamPrefix: 'SatisfactoryLogs',
+  logRetention: RetentionDays.THREE_DAYS,
+}),
 ```
 
 This will generate a default log group in CloudWatch, and keep those logs for 3
@@ -313,12 +313,12 @@ group name by adding a `logGroup: "MyGameServerLogs"` if you want.
 If you want to raise or lower the CPU Utilization target for the autoshutdown, or increase the evaluation period you can add the following.
 
 ``` typescript
-      //previous code cut for brevity
-      mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
-      autoShutdownConfig: {
-        cpuUtilizationMin: 5,
-        evaluationPeriods: 6
-      }
+//previous code cut for brevity
+mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+autoShutdownConfig: {
+  cpuUtilizationMin: 5,
+  evaluationPeriods: 6
+}
 ```
 
 If CPU Utilization of your container falls below `cpuUtilizationMin` for
