@@ -1,4 +1,4 @@
-# cdk-game-servers
+# cdk-game-server
 
 This AWS CDK Construct Library is designed to run dedicated game servers on
 Amazon Elastic Container Service (Amazon ECS) and AWS Fargate as cheaply as
