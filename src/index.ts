@@ -110,7 +110,7 @@ export class GameServer extends Construct {
   readonly steamArgs?: string;
 
   readonly containerEnv: { [key: string]: string };
-  readonly containerSecrets?: { [key: string]: ecs.Secret};
+  readonly containerSecrets: { [key: string]: ecs.Secret};
 
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
