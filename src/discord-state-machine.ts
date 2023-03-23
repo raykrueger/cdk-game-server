@@ -22,7 +22,7 @@ export class DiscordStateMachine extends Construct {
     super(scope, id);
 
     const f = new Function(this, 'DiscordResponse', {
-      code: Code.fromAsset(path.join(__dirname, 'functions/discord'), {
+      code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Runtime.PYTHON_3_9.bundlingImage,
           command: [

@@ -19,14 +19,14 @@ export class DiscordBotCustomResource extends Construct {
 
     //This 'version' concept is to force an update to the custom resource if we change the event handler function
     const hash = crypto.createHash('sha256');
-    const body = fs.readFileSync(path.join(__dirname, 'functions/discord_provider/discord_provider.py'), 'utf8');
+    const body = fs.readFileSync(path.join(__dirname, '../resources/functions/discord_provider/discord_provider.py'), 'utf8');
     const version = hash.update(body).digest('hex');
 
     const commandName = props.commandName;
 
     const secret = props.secret;
 
-    const code = Code.fromAsset(path.join(__dirname, 'functions/discord_provider'), {
+    const code = Code.fromAsset(path.join(__dirname, '../resources/functions/discord_provider'), {
       bundling: {
         image: Runtime.PYTHON_3_9.bundlingImage,
         command: [

@@ -32,7 +32,7 @@ export class DiscordBotConstruct extends Construct {
 
     const f = new Function(this, 'DiscordBotFunction', {
       runtime: Runtime.PYTHON_3_9,
-      code: Code.fromAsset(path.join(__dirname, 'functions/discord'), {
+      code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Runtime.PYTHON_3_9.bundlingImage,
           command: [

@@ -31,7 +31,7 @@ export class AutoShutdown extends Construct {
 
     this.topic = new Topic(this, 'AutoShutdownTopic');
 
-    const code = Code.fromAsset(path.join(__dirname, 'functions/autoshutdown'));
+    const code = Code.fromAsset(path.join(__dirname, '../resources/functions/autoshutdown'));
 
     this.function = this.buildShutdownFunction(code);
     this.topic.addSubscription(new LambdaSubscription(this.function));
