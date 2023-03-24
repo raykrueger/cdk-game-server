@@ -112,6 +112,9 @@ export class GameServer extends Construct {
   readonly containerEnv: { [key: string]: string };
   readonly containerSecrets: { [key: string]: ecs.Secret};
 
+  readonly cluster: ecs.ICluster;
+  readonly service: ecs.IService;
+
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
     super(scope, id);
@@ -164,6 +167,7 @@ export class GameServer extends Construct {
       containerInsights: this.containerInsights,
       enableFargateCapacityProviders: true,
     });
+    this.cluster = cluster;
 
     //Create our ECS TaskDefinition using our cpu and memory limits
     const taskDef = new ecs.FargateTaskDefinition(this, 'TaskDef', {
@@ -233,6 +237,7 @@ export class GameServer extends Construct {
         },
       ],
     });
+    this.service = service;
 
     if (this.dnsConfig) {
       new PublicIPSupport(this, 'PublicIPSupport', {
