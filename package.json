@@ -48,10 +48,10 @@
     "jest-junit": "^15",
     "jsii": "1.x",
     "jsii-diff": "^1.80.0",
-    "jsii-docgen": "^7.1.46",
+    "jsii-docgen": "^7.2.1",
     "jsii-pacmak": "^1.80.0",
     "npm-check-updates": "^16",
-    "projen": "^0.71.12",
+    "projen": "^0.71.22",
     "standard-version": "^9",
     "ts-jest": "^27",
     "typescript": "^5.0.4"
@@ -61,11 +61,12 @@
     "constructs": "^10.0.5"
   },
   "dependencies": {
-    "@aws-solutions-constructs/aws-apigateway-lambda": "^2.38.0",
-    "@matthewbonig/state-machine": "0.0.21",
-    "@raykrueger/cdk-fargate-public-dns": "0.0.17"
+    "@aws-solutions-constructs/aws-apigateway-lambda": "^2.39.0",
+    "@matthewbonig/state-machine": "0.0.26",
+    "@raykrueger/cdk-fargate-public-dns": "0.0.18"
   },
   "bundledDependencies": [
+    "@aws-solutions-constructs/aws-apigateway-lambda",
     "@matthewbonig/state-machine"
   ],
   "resolutions": {
