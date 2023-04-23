@@ -16,10 +16,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
 
   deps: [
-    '@aws-solutions-constructs/aws-apigateway-lambda',
     '@raykrueger/cdk-fargate-public-dns',
   ],
   bundledDeps: [
+    '@aws-solutions-constructs/aws-apigateway-lambda',
     '@matthewbonig/state-machine',
   ],
   devDeps: [
