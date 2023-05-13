@@ -41,7 +41,7 @@ export class DiscordStateMachine extends Construct {
 
 
     const sm = new StateMachine(this, 'DiscordStateMachine', {
-      definition: JSON.parse(fs.readFileSync(path.join(__dirname, 'discord-bot-asl.json'), 'utf8').toString()),
+      definition: JSON.parse(fs.readFileSync(path.join(__dirname, '../resources/discord-bot-asl.json'), 'utf8').toString()),
       overrides: {
         DescribeServices: {
           Parameters: {
