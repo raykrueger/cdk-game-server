@@ -51,11 +51,18 @@ export class DiscordStateMachine extends Construct {
             ],
           },
         },
-        UpdateService: {
+        StartService: {
           Parameters: {
             Cluster: props.service.cluster.clusterArn,
             Service: props.service.serviceArn,
             DesiredCount: 1,
+          },
+        },
+        StopService: {
+          Parameters: {
+            Cluster: props.service.cluster.clusterArn,
+            Service: props.service.serviceArn,
+            DesiredCount: 0,
           },
         },
         SendDiscordResponse: {
