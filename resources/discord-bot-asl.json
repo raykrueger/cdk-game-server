@@ -13,7 +13,12 @@
         {
           "Variable": "$.SubCommand",
           "StringEquals": "start",
-          "Next": "UpdateService"
+          "Next": "StartService"
+        },
+        {
+          "Variable": "$.SubCommand",
+          "StringEquals": "stop",
+          "Next": "StopService"
         }
       ],
       "Default": "WutMessage"
@@ -26,7 +31,7 @@
       },
       "ResultPath": "$.Discord"
     },
-    "UpdateService": {
+    "StartService": {
       "Type": "Task",
       "Next": "RunningCheck",
       "Parameters": {
@@ -67,6 +72,21 @@
         "Message": "Server is starting, give it 10 minutes"
       },
       "ResultPath": "$.Discord"
+    },
+    "StopService": {
+      "Type": "Task",
+      "Next": "DescribeServices",
+      "Parameters": {
+        "Cluster": "",
+        "Service": "",
+        "DesiredCount": 0
+      },
+      "Resource": "arn:aws:states:::aws-sdk:ecs:updateService",
+      "ResultSelector": {
+        "DesiredCount.$": "$.Service.DesiredCount",
+        "RunningCount.$": "$.Service.RunningCount"
+      },
+      "ResultPath": "$.Service"
     },
     "DescribeServices": {
       "Type": "Task",

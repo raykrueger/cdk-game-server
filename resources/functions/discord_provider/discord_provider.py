@@ -35,6 +35,11 @@ def on_create(event):
                 "description": "Start the server, if it isn't running",
                 "type": 1,
             },
+            {
+                "name": "stop",
+                "description": "Stop the server, if it is running",
+                "type": 1,
+            },
         ],
     }
 
