@@ -182,6 +182,7 @@ export class GameServer extends Construct {
       name: 'efsVolume',
       efsVolumeConfiguration: {
         fileSystemId: fs.fileSystemId,
+        transitEncryption: 'ENABLED',
         authorizationConfig: {
           accessPointId: ap.accessPointId,
           iam: 'ENABLED',
