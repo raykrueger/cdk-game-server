@@ -3,6 +3,7 @@ import { RemovalPolicy } from 'aws-cdk-lib';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as ecs from 'aws-cdk-lib/aws-ecs';
 import * as efs from 'aws-cdk-lib/aws-efs';
+import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 import * as shutdown from './auto_shutdown';
 import { DiscordBotConstruct } from './discord';
@@ -159,7 +160,7 @@ export class GameServer extends Construct {
       enableAutomaticBackups: true,
     });
 
-    fs.addAccessPoint('AccessPoint');
+    const ap = fs.addAccessPoint('AccessPoint');
 
     //Create our ECS Cluster
     const cluster = new ecs.Cluster(this, 'Cluster', {
@@ -181,9 +182,24 @@ export class GameServer extends Construct {
       name: 'efsVolume',
       efsVolumeConfiguration: {
         fileSystemId: fs.fileSystemId,
+        authorizationConfig: {
+          accessPointId: ap.accessPointId,
+          iam: 'ENABLED',
+        },
       },
     });
 
+    taskDef.addToTaskRolePolicy(
+      new PolicyStatement({
+        actions: [
+          'elasticfilesystem:ClientRootAccess',
+          'elasticfilesystem:ClientWrite',
+          'elasticfilesystem:ClientMount',
+          'elasticfilesystem:DescribeMountTargets',
+        ],
+        resources: [fs.fileSystemArn],
+      }),
+    );
 
     /**
          * Add our container definition, map the ports, and setup our
