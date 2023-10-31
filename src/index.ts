@@ -170,6 +170,7 @@ export class GameServer extends Construct {
         ownerUid: '1000',
         permissions: '755',
       },
+      path: '/data',
     });
 
     //Create our ECS Cluster
