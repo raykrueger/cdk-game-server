@@ -160,7 +160,12 @@ export class GameServer extends Construct {
       enableAutomaticBackups: true,
     });
 
-    const ap = fs.addAccessPoint('AccessPoint');
+    const ap = fs.addAccessPoint('AccessPoint', {
+      posixUser: {
+        gid: '1000',
+        uid: '1000',
+      },
+    });
 
     //Create our ECS Cluster
     const cluster = new ecs.Cluster(this, 'Cluster', {
@@ -243,6 +248,7 @@ export class GameServer extends Construct {
       assignPublicIp: true,
       maxHealthyPercent: 100,
       minHealthyPercent: 0,
+      enableExecuteCommand: true,
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
