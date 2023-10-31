@@ -165,6 +165,11 @@ export class GameServer extends Construct {
         gid: '1000',
         uid: '1000',
       },
+      createAcl: {
+        ownerGid: '1000',
+        ownerUid: '1000',
+        permissions: '755',
+      },
     });
 
     //Create our ECS Cluster
