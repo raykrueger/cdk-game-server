@@ -79,8 +79,8 @@ export interface GameServerProps {
   readonly gamePorts: GamePort[];
   readonly additionalArgs?: string[];
   readonly containerEnv?: { [key: string]: string };
-  readonly containerSecrets?: { [key: string]: ecs.Secret};
-
+  readonly containerSecrets?: { [key: string]: ecs.Secret };
+  readonly enableExecuteCommand?: boolean | undefined;
 }
 
 /**
@@ -111,10 +111,11 @@ export class GameServer extends Construct {
   readonly steamArgs?: string;
 
   readonly containerEnv: { [key: string]: string };
-  readonly containerSecrets: { [key: string]: ecs.Secret};
+  readonly containerSecrets: { [key: string]: ecs.Secret };
 
   readonly cluster: ecs.ICluster;
   readonly service: ecs.IService;
+  readonly enableExecuteCommand?: boolean | undefined;
 
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
@@ -150,6 +151,7 @@ export class GameServer extends Construct {
     this.additionalArgs = props.additionalArgs;
     this.containerEnv = props.containerEnv || {};
     this.containerSecrets = props.containerSecrets || {};
+    this.enableExecuteCommand = props.enableExecuteCommand;
 
     //Define our EFS file system
     const fs = new efs.FileSystem(this, 'GameFileSystem', {
@@ -254,7 +256,7 @@ export class GameServer extends Construct {
       assignPublicIp: true,
       maxHealthyPercent: 100,
       minHealthyPercent: 0,
-      enableExecuteCommand: true,
+      enableExecuteCommand: this.enableExecuteCommand,
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
