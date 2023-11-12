@@ -450,6 +450,7 @@ Any object.
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.autoShutdownConfig">autoShutdownConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.AutoShutdownProps">AutoShutdownProps</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.discord">discord</a></code> | <code><a href="#@raykrueger/cdk-game-server.DiscordCommandOptions">DiscordCommandOptions</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.dnsConfig">dnsConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a></code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.GameServer.property.enableExecuteCommand">enableExecuteCommand</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.logging">logging</a></code> | <code>aws-cdk-lib.aws_ecs.LogDriver</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.steamArgs">steamArgs</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | *No description.* |
@@ -605,6 +606,16 @@ public readonly dnsConfig: DomainProps;
 ```
 
 - *Type:* <a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a>
+
+---
+
+##### `enableExecuteCommand`<sup>Optional</sup> <a name="enableExecuteCommand" id="@raykrueger/cdk-game-server.GameServer.property.enableExecuteCommand"></a>
+
+```typescript
+public readonly enableExecuteCommand: boolean;
+```
+
+- *Type:* boolean
 
 ---
 
@@ -833,6 +844,7 @@ const gameServerProps: GameServerProps = { ... }
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.cpu">cpu</a></code> | <code>number</code> | vCpu amout to be granted to ECS Fargate task. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.discord">discord</a></code> | <code><a href="#@raykrueger/cdk-game-server.DiscordCommandOptions">DiscordCommandOptions</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.dnsConfig">dnsConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a></code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.enableExecuteCommand">enableExecuteCommand</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.logging">logging</a></code> | <code>aws-cdk-lib.aws_ecs.LogDriver</code> | Logging driver to use. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | Memory limit in 1024 incrmements. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Provide an existing VPC to deploy into. |
@@ -956,6 +968,16 @@ public readonly dnsConfig: DomainProps;
 ```
 
 - *Type:* <a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a>
+
+---
+
+##### `enableExecuteCommand`<sup>Optional</sup> <a name="enableExecuteCommand" id="@raykrueger/cdk-game-server.GameServerProps.property.enableExecuteCommand"></a>
+
+```typescript
+public readonly enableExecuteCommand: boolean;
+```
+
+- *Type:* boolean
 
 ---
 
