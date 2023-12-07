@@ -81,6 +81,7 @@ export interface GameServerProps {
   readonly containerEnv?: { [key: string]: string };
   readonly containerSecrets?: { [key: string]: ecs.Secret };
   readonly enableExecuteCommand?: boolean | undefined;
+  readonly useSpot?: boolean;
 }
 
 /**
@@ -116,6 +117,7 @@ export class GameServer extends Construct {
   readonly cluster: ecs.ICluster;
   readonly service: ecs.IService;
   readonly enableExecuteCommand?: boolean | undefined;
+  readonly useSpot: boolean;
 
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
@@ -152,6 +154,7 @@ export class GameServer extends Construct {
     this.containerEnv = props.containerEnv || {};
     this.containerSecrets = props.containerSecrets || {};
     this.enableExecuteCommand = props.enableExecuteCommand;
+    this.useSpot = props.useSpot === undefined ? true : props.useSpot;
 
     //Define our EFS file system
     const fs = new efs.FileSystem(this, 'GameFileSystem', {
@@ -260,11 +263,11 @@ export class GameServer extends Construct {
       capacityProviderStrategies: [
         {
           capacityProvider: 'FARGATE_SPOT',
-          weight: 2,
+          weight: this.useSpot ? 20 : 0,
         },
         {
           capacityProvider: 'FARGATE',
-          weight: 1,
+          weight: 10,
         },
       ],
     });
