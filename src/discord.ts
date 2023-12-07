@@ -71,7 +71,7 @@ export class DiscordBotConstruct extends Construct {
       discordSecret: secret,
     });
 
-    dsm.stateMachine.grantStartExecution(f);
-    f.addEnvironment('STATE_MACHINE', dsm.stateMachine.stateMachineArn);
+    dsm.grantStartExecution(f);
+    f.addEnvironment('STATE_MACHINE', dsm.stateMachineArn);
   }
 }

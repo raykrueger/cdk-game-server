@@ -54,6 +54,7 @@ function buildStack(): cdk.Stack {
 // docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Post "http://%2Fvar%2Frun%2Fdocker.sock/v1.24/containers/create": dial unix /var/run/docker.sock: connect: permission denied.
 // Usermod didn't help
 // Until I can fix this I'll test locally
+
 test('Function with no assumed role', () => {
   /*
   const stack = buildStack();

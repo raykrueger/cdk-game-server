@@ -93,10 +93,6 @@
       "type": "bundled"
     },
     {
-      "name": "@matthewbonig/state-machine",
-      "type": "bundled"
-    },
-    {
       "name": "@types/babel__traverse",
       "version": "7.18.2",
       "type": "override"
@@ -108,7 +104,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.102.0",
+      "version": "^2.114.1",
       "type": "peer"
     },
     {
