@@ -446,6 +446,7 @@ Any object.
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.mountTarget">mountTarget</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.service">service</a></code> | <code>aws-cdk-lib.aws_ecs.IService</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.GameServer.property.useSpot">useSpot</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.additionalArgs">additionalArgs</a></code> | <code>string[]</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.autoShutdownConfig">autoShutdownConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.AutoShutdownProps">AutoShutdownProps</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.discord">discord</a></code> | <code><a href="#@raykrueger/cdk-game-server.DiscordCommandOptions">DiscordCommandOptions</a></code> | *No description.* |
@@ -566,6 +567,16 @@ public readonly service: IService;
 ```
 
 - *Type:* aws-cdk-lib.aws_ecs.IService
+
+---
+
+##### `useSpot`<sup>Required</sup> <a name="useSpot" id="@raykrueger/cdk-game-server.GameServer.property.useSpot"></a>
+
+```typescript
+public readonly useSpot: boolean;
+```
+
+- *Type:* boolean
 
 ---
 
@@ -847,6 +858,7 @@ const gameServerProps: GameServerProps = { ... }
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.enableExecuteCommand">enableExecuteCommand</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.logging">logging</a></code> | <code>aws-cdk-lib.aws_ecs.LogDriver</code> | Logging driver to use. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | Memory limit in 1024 incrmements. |
+| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.useSpot">useSpot</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Provide an existing VPC to deploy into. |
 
 ---
@@ -1015,6 +1027,16 @@ public readonly memoryLimitMiB: number;
 Memory limit in 1024 incrmements.
 
 > [https://aws.amazon.com/fargate/pricing/](https://aws.amazon.com/fargate/pricing/)
+
+---
+
+##### `useSpot`<sup>Optional</sup> <a name="useSpot" id="@raykrueger/cdk-game-server.GameServerProps.property.useSpot"></a>
+
+```typescript
+public readonly useSpot: boolean;
+```
+
+- *Type:* boolean
 
 ---
 
