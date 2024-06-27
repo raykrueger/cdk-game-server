@@ -18,10 +18,12 @@ const project = new awscdk.AwsCdkConstructLibrary({
   deps: [
     '@raykrueger/cdk-fargate-public-dns',
     '@aws-solutions-constructs/aws-apigateway-lambda',
-    '@aws-solutions-constructs/core'
+    '@aws-solutions-constructs/core',
+    'constructs',
   ],
   devDeps: [
     '@types/node',
+    'constructs',
   ],
 
   /* Runtime dependencies of this module. */

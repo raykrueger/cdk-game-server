@@ -39,7 +39,6 @@
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
     "aws-cdk-lib": "2.145.0",
-    "constructs": "10.0.5",
     "eslint": "^8",
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.29.1",
@@ -62,7 +61,8 @@
   "dependencies": {
     "@aws-solutions-constructs/aws-apigateway-lambda": "^2.60.0",
     "@aws-solutions-constructs/core": "^2.60.0",
-    "@raykrueger/cdk-fargate-public-dns": "0.0.21"
+    "@raykrueger/cdk-fargate-public-dns": "0.0.21",
+    "constructs": "^10.3.0"
   },
   "resolutions": {
     "@types/babel__traverse": "7.18.2",
