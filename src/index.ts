@@ -29,6 +29,12 @@ export interface DomainProps {
   readonly domainName: string;
 }
 
+export interface MountOptions {
+  readonly mountTarget: string;
+  readonly aclUserId?: number;
+  readonly aclGroupId?: number;
+}
+
 export interface GameServerProps {
 
   /**
@@ -75,13 +81,13 @@ export interface GameServerProps {
   readonly dnsConfig?: DomainProps;
   readonly autoShutdownConfig?: shutdown.AutoShutdownProps;
   readonly discord?: DiscordCommandOptions;
-  readonly mountTarget: string;
   readonly gamePorts: GamePort[];
   readonly additionalArgs?: string[];
   readonly containerEnv?: { [key: string]: string };
   readonly containerSecrets?: { [key: string]: ecs.Secret };
   readonly enableExecuteCommand?: boolean | undefined;
   readonly useSpot?: boolean;
+  readonly mountTarget: MountOptions;
 }
 
 /**
@@ -106,7 +112,6 @@ export class GameServer extends Construct {
   readonly dnsConfig?: DomainProps;
   readonly autoShutdownConfig?: shutdown.AutoShutdownProps;
   readonly discord?: DiscordCommandOptions;
-  readonly mountTarget: string;
   readonly gamePorts: GamePort[];
   readonly additionalArgs?: string[];
   readonly steamArgs?: string;
@@ -118,6 +123,7 @@ export class GameServer extends Construct {
   readonly service: ecs.IService;
   readonly enableExecuteCommand?: boolean | undefined;
   readonly useSpot: boolean;
+  readonly mountTarget: MountOptions;
 
 
   constructor(scope: Construct, id: string, props: GameServerProps) {
@@ -148,13 +154,13 @@ export class GameServer extends Construct {
     this.dnsConfig = props.dnsConfig;
     this.autoShutdownConfig = props.autoShutdownConfig;
     this.discord = props.discord;
-    this.mountTarget = props.mountTarget;
     this.gamePorts = props.gamePorts;
     this.additionalArgs = props.additionalArgs;
     this.containerEnv = props.containerEnv || {};
     this.containerSecrets = props.containerSecrets || {};
     this.enableExecuteCommand = props.enableExecuteCommand;
     this.useSpot = props.useSpot === undefined ? true : props.useSpot;
+    this.mountTarget = props.mountTarget;
 
     //Define our EFS file system
     const fs = new efs.FileSystem(this, 'GameFileSystem', {
@@ -166,13 +172,9 @@ export class GameServer extends Construct {
     });
 
     const ap = fs.addAccessPoint('AccessPoint', {
-      posixUser: {
-        gid: '1000',
-        uid: '1000',
-      },
       createAcl: {
-        ownerGid: '1000',
-        ownerUid: '1000',
+        ownerGid: (this.mountTarget.aclGroupId || 1000).toString(),
+        ownerUid: (this.mountTarget.aclUserId || 1000).toString(),
         permissions: '755',
       },
       path: '/data',
@@ -230,7 +232,7 @@ export class GameServer extends Construct {
       secrets: this.containerSecrets,
     });
 
-    containerDef.addMountPoints({ sourceVolume: 'efsVolume', containerPath: this.mountTarget, readOnly: false });
+    containerDef.addMountPoints({sourceVolume: 'efsVolume', containerPath: this.mountTarget.mountTarget, readOnly: false})
 
     const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
       vpc: this.vpc,
