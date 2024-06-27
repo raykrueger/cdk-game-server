@@ -38,7 +38,7 @@
     "@types/node": "^18 <= 18.11.19",
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
-    "aws-cdk-lib": "2.115.0",
+    "aws-cdk-lib": "2.145.0",
     "constructs": "10.0.5",
     "eslint": "^8",
     "eslint-import-resolver-typescript": "^3.6.1",
@@ -53,15 +53,15 @@
     "projen": "^0.82.8",
     "standard-version": "^9",
     "ts-jest": "^27",
-    "typescript": "^5.2.2"
+    "typescript": "^5.5.2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.115.0",
+    "aws-cdk-lib": "^2.145.0",
     "constructs": "^10.0.5"
   },
   "dependencies": {
     "@aws-solutions-constructs/aws-apigateway-lambda": "^2.60.0",
-    "@aws-solutions-constructs/core": "^2.47.0",
+    "@aws-solutions-constructs/core": "^2.60.0",
     "@raykrueger/cdk-fargate-public-dns": "0.0.21"
   },
   "resolutions": {
