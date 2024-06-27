@@ -413,7 +413,7 @@ Returns a string representation of this construct.
 
 ---
 
-##### ~~`isConstruct`~~ <a name="isConstruct" id="@raykrueger/cdk-game-server.GameServer.isConstruct"></a>
+##### `isConstruct` <a name="isConstruct" id="@raykrueger/cdk-game-server.GameServer.isConstruct"></a>
 
 ```typescript
 import { GameServer } from '@raykrueger/cdk-game-server'
@@ -422,6 +422,20 @@ GameServer.isConstruct(x: any)
 ```
 
 Checks if `x` is a construct.
+
+Use this method instead of `instanceof` to properly detect `Construct`
+instances, even when the construct library is symlinked.
+
+Explanation: in JavaScript, multiple copies of the `constructs` library on
+disk are seen as independent, completely different libraries. As a
+consequence, the class `Construct` in each copy of the `constructs` library
+is seen as a different class, and an instance of one class will not test as
+`instanceof` the other class. `npm install` will not create installations
+like this, but users may manually symlink construct libraries together or
+use a monorepo tool: in those cases, multiple copies of the `constructs`
+library can be accidentally installed, and `instanceof` will behave
+unpredictably. It is safest to avoid using `instanceof`, and using
+this type-testing method instead.
 
 ###### `x`<sup>Required</sup> <a name="x" id="@raykrueger/cdk-game-server.GameServer.isConstruct.parameter.x"></a>
 
@@ -444,7 +458,7 @@ Any object.
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.gamePorts">gamePorts</a></code> | <code><a href="#@raykrueger/cdk-game-server.GamePort">GamePort</a>[]</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.image">image</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerImage</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | *No description.* |
-| <code><a href="#@raykrueger/cdk-game-server.GameServer.property.mountTarget">mountTarget</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.GameServer.property.mountTarget">mountTarget</a></code> | <code><a href="#@raykrueger/cdk-game-server.MountOptions">MountOptions</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.service">service</a></code> | <code>aws-cdk-lib.aws_ecs.IService</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.useSpot">useSpot</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.property.additionalArgs">additionalArgs</a></code> | <code>string[]</code> | *No description.* |
@@ -553,10 +567,10 @@ public readonly memoryLimitMiB: number;
 ##### `mountTarget`<sup>Required</sup> <a name="mountTarget" id="@raykrueger/cdk-game-server.GameServer.property.mountTarget"></a>
 
 ```typescript
-public readonly mountTarget: string;
+public readonly mountTarget: MountOptions;
 ```
 
-- *Type:* string
+- *Type:* <a href="#@raykrueger/cdk-game-server.MountOptions">MountOptions</a>
 
 ---
 
@@ -846,7 +860,7 @@ const gameServerProps: GameServerProps = { ... }
 | --- | --- | --- |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.gamePorts">gamePorts</a></code> | <code><a href="#@raykrueger/cdk-game-server.GamePort">GamePort</a>[]</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.image">image</a></code> | <code>aws-cdk-lib.aws_ecs.ContainerImage</code> | The container image to run. |
-| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.mountTarget">mountTarget</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.mountTarget">mountTarget</a></code> | <code><a href="#@raykrueger/cdk-game-server.MountOptions">MountOptions</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.additionalArgs">additionalArgs</a></code> | <code>string[]</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.autoShutdownConfig">autoShutdownConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.AutoShutdownProps">AutoShutdownProps</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.containerEnv">containerEnv</a></code> | <code>{[ key: string ]: string}</code> | *No description.* |
@@ -888,10 +902,10 @@ The container image to run.
 ##### `mountTarget`<sup>Required</sup> <a name="mountTarget" id="@raykrueger/cdk-game-server.GameServerProps.property.mountTarget"></a>
 
 ```typescript
-public readonly mountTarget: string;
+public readonly mountTarget: MountOptions;
 ```
 
-- *Type:* string
+- *Type:* <a href="#@raykrueger/cdk-game-server.MountOptions">MountOptions</a>
 
 ---
 
@@ -1051,6 +1065,56 @@ public readonly vpc: IVpc;
 Provide an existing VPC to deploy into.
 
 If none is given a default `ec2.VPC` will be created.
+
+---
+
+### MountOptions <a name="MountOptions" id="@raykrueger/cdk-game-server.MountOptions"></a>
+
+#### Initializer <a name="Initializer" id="@raykrueger/cdk-game-server.MountOptions.Initializer"></a>
+
+```typescript
+import { MountOptions } from '@raykrueger/cdk-game-server'
+
+const mountOptions: MountOptions = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#@raykrueger/cdk-game-server.MountOptions.property.mountTarget">mountTarget</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.MountOptions.property.aclGroupId">aclGroupId</a></code> | <code>number</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.MountOptions.property.aclUserId">aclUserId</a></code> | <code>number</code> | *No description.* |
+
+---
+
+##### `mountTarget`<sup>Required</sup> <a name="mountTarget" id="@raykrueger/cdk-game-server.MountOptions.property.mountTarget"></a>
+
+```typescript
+public readonly mountTarget: string;
+```
+
+- *Type:* string
+
+---
+
+##### `aclGroupId`<sup>Optional</sup> <a name="aclGroupId" id="@raykrueger/cdk-game-server.MountOptions.property.aclGroupId"></a>
+
+```typescript
+public readonly aclGroupId: number;
+```
+
+- *Type:* number
+
+---
+
+##### `aclUserId`<sup>Optional</sup> <a name="aclUserId" id="@raykrueger/cdk-game-server.MountOptions.property.aclUserId"></a>
+
+```typescript
+public readonly aclUserId: number;
+```
+
+- *Type:* number
 
 ---
 

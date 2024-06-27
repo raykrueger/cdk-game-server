@@ -232,7 +232,7 @@ export class GameServer extends Construct {
       secrets: this.containerSecrets,
     });
 
-    containerDef.addMountPoints({sourceVolume: 'efsVolume', containerPath: this.mountTarget.mountTarget, readOnly: false})
+    containerDef.addMountPoints({ sourceVolume: 'efsVolume', containerPath: this.mountTarget.mountTarget, readOnly: false });
 
     const securityGroup = new ec2.SecurityGroup(this, 'SecurityGroup', {
       vpc: this.vpc,
