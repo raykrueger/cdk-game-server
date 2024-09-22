@@ -3,7 +3,7 @@ const { NpmAccess } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
-  cdkVersion: '2.145.0',
+  cdkVersion: '2.159.1',
   defaultReleaseBranch: 'main',
   name: '@raykrueger/cdk-game-server',
   repositoryUrl: 'https://github.com/raykrueger/cdk-game-server.git',
