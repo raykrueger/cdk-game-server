@@ -28,4 +28,7 @@ def handle(event, context):
     }
 
     res = requests.post(url, json=body, headers=headers)
+    if not res.ok:
+        print(f"ERROR: {res.text}") 
+ 
     res.raise_for_status()
