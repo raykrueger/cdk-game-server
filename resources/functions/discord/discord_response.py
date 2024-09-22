@@ -16,7 +16,7 @@ def handle(event, context):
     print("Received event: " + json.dumps(event))
     interaction_token = event["InteractionToken"]
     message = event["Discord"]["Message"]
-    url = f"https://discord.com/api/v8/webhooks/{app_id}/{interaction_token}"
+    url = f"https://discord.com/api/v10/webhooks/{app_id}/{interaction_token}/callback"
     headers = {"Authorization": f"Bot {bot_token}"}
     res = requests.post(url, json={"content": message}, headers=headers)
     res.raise_for_status()

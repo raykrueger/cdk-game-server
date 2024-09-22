@@ -9,6 +9,8 @@ secret_name = os.environ.get("SECRET_NAME")
 secrets = secrets_manager.get_secret_value(SecretId=secret_name)["SecretString"]
 secrets = json.loads(secrets)
 
+discord_api_version = "v10"
+
 app_id = secrets["AppId"]
 guild_id = secrets["GuildId"]
 bot_token = secrets["BotToken"]
@@ -16,7 +18,7 @@ bot_token = secrets["BotToken"]
 command_name = os.environ.get("COMMAND_NAME")
 
 def on_create(event):
-    url = f"https://discord.com/api/v10/applications/{app_id}/guilds/{guild_id}/commands"
+    url = f"https://discord.com/api/{discord_api_version}/applications/{app_id}/guilds/{guild_id}/commands"
 
     # This is an example USER command, with a type of 2
     blob = {
@@ -63,7 +65,7 @@ def on_update(event):
 
 def on_delete(event):
     command_id = event["PhysicalResourceId"]
-    url = f"https://discord.com/api/v8/applications/{app_id}/guilds/{guild_id}/commands/{command_id}"
+    url = f"https://discord.com/api/{discord_api_version}/applications/{app_id}/guilds/{guild_id}/commands/{command_id}"
 
     # For authorization, you can use your bot token
     headers = {"Authorization": f"Bearer {bot_token}"}
