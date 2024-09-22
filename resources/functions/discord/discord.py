@@ -42,6 +42,7 @@ def post(event):
     rtype = request["type"]
     print("Request Type:" + str(rtype))
 
+    interaction_id = request["id"]
     interaction_token = request["token"]
 
     try:
@@ -74,6 +75,7 @@ def post(event):
             name=execution_name,
             input=json.dumps(
                 {
+                    "InteractionId": interaction_id,
                     "InteractionToken": interaction_token,
                     "SubCommand": sub_command,
                 }
