@@ -80,7 +80,7 @@ import { Vpc } from 'aws-cdk-lib/aws-ec2';
 import { AwsLogDriver, ContainerImage, Protocol } from 'aws-cdk-lib/aws-ecs';
 import { RetentionDays } from 'aws-cdk-lib/aws-logs';
 import 'source-map-support/register';
-import { GameServer } from '../../cdk-game-server/src';
+import { GameServer } from '@raykrueger/cdk-game-server';
 
 class GameStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
@@ -95,7 +95,11 @@ class GameStack extends Stack {
         { portNumber: 15000, protocol: Protocol.UDP },
         { portNumber: 15777, protocol: Protocol.UDP }
       ],
-      mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames"
+      mountTarget: {
+        mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+        aclGroupId: 1000,
+        aclUserId: 1000
+      },
     });
   }
 }
