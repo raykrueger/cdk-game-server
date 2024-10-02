@@ -92,8 +92,7 @@ class GameStack extends Stack {
       image: ContainerImage.fromRegistry("raykrueger/satisfactory-dedicated-server"),
       gamePorts: [
         { portNumber: 7777, protocol: Protocol.UDP },
-        { portNumber: 15000, protocol: Protocol.UDP },
-        { portNumber: 15777, protocol: Protocol.UDP }
+        { portNumber: 7777, protocol: Protocol.TCP },
       ],
       mountTarget: {
         mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
