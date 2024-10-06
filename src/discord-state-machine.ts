@@ -31,6 +31,7 @@ export class DiscordStateMachine extends Construct {
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Runtime.PYTHON_3_9.bundlingImage,
+          platform: 'linux/amd64',
           command: [
             'bash', '-c',
             'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
