@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CustomResource, RemovalPolicy } from 'aws-cdk-lib';
-import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';

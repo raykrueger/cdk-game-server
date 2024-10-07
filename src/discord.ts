@@ -3,12 +3,12 @@ import { ApiGatewayToLambda } from '@aws-solutions-constructs/aws-apigateway-lam
 import { AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
 import { BaseService } from 'aws-cdk-lib/aws-ecs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
+import { Constants } from './constants';
 import { DiscordStateMachine } from './discord-state-machine';
 import { DiscordBotCustomResource } from './discord_bot_custom_resource';
-import { Constants } from './constants';
 
 export interface DiscordBotOptions {
   commandName: string;

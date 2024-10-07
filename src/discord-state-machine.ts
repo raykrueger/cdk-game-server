@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
 import { Grant, IGrantable } from 'aws-cdk-lib/aws-iam';
-import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Choice, Condition, DefinitionBody, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
 import { CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';

@@ -23,7 +23,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   ],
   devDeps: [
     '@types/node',
-    'constructs',
   ],
 
   /* Runtime dependencies of this module. */
