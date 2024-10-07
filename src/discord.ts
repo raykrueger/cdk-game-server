@@ -3,7 +3,7 @@ import { ApiGatewayToLambda } from '@aws-solutions-constructs/aws-apigateway-lam
 import { AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
 import { BaseService } from 'aws-cdk-lib/aws-ecs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
+import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Constants } from './constants';
@@ -33,7 +33,7 @@ export class DiscordBotConstruct extends Construct {
 
     const f = new Function(this, 'DiscordBotFunction', {
       runtime: Constants.LAMBDA_RUNTIME,
-      architecture: Architecture.ARM_64,
+      architecture: Constants.LAMBDA_ARCH,
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Constants.LAMBDA_RUNTIME.bundlingImage,

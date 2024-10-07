@@ -1,7 +1,7 @@
 import * as path from 'path';
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
 import { Grant, IGrantable } from 'aws-cdk-lib/aws-iam';
-import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
+import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Choice, Condition, DefinitionBody, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
 import { CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
@@ -30,7 +30,7 @@ export class DiscordStateMachine extends Construct {
 
     const responseFunction = new Function(this, 'DiscordResponse', {
       runtime: Constants.LAMBDA_RUNTIME,
-      architecture: Architecture.ARM_64,
+      architecture: Constants.LAMBDA_ARCH,
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Constants.LAMBDA_RUNTIME.bundlingImage,

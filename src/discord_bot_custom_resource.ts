@@ -2,7 +2,7 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CustomResource, RemovalPolicy } from 'aws-cdk-lib';
-import { Architecture, Code, Function } from 'aws-cdk-lib/aws-lambda';
+import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
@@ -40,7 +40,7 @@ export class DiscordBotCustomResource extends Construct {
 
     const f = new Function(this, 'DiscordBotCRHandler', {
       runtime: Constants.LAMBDA_RUNTIME,
-      architecture: Architecture.ARM_64,
+      architecture: Constants.LAMBDA_ARCH,
       code,
       handler: 'discord_provider.on_event',
       environment: {
