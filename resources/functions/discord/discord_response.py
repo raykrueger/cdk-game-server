@@ -17,17 +17,18 @@ def handle(event, context):
     interaction_id = event["InteractionId"]
     interaction_token = event["InteractionToken"]
     message = event["Discord"]["Message"]
-    url = f"https://discord.com/api/v10/interactions/{interaction_id}/{interaction_token}/callback"
-    headers = {"Authorization": f"Bot {bot_token}"}
+    url = f"https://discord.com/api/v10/webhooks/{app_id}/{interaction_token}"
+    
+    headers = {
+        "Authorization": f"Bot {bot_token}",
+    }
 
     body = {
-      "type": 4,
-      "data": {
-        "content": message
-       }
+      "content": message
     }
 
     res = requests.post(url, json=body, headers=headers)
+
     if not res.ok:
         print(f"ERROR: {res.text}") 
  

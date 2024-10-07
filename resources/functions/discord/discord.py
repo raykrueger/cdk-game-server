@@ -1,12 +1,12 @@
 import boto3
 import os
 import json
-import hashlib
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
 
 cluster = os.environ.get("CLUSTER_ARN")
 service = os.environ.get("SERVICE_ARN")
+stateMachineArn = os.environ.get("STATE_MACHINE")
 secrets_manager = boto3.client("secretsmanager")
 ecs = boto3.client("ecs")
 sfn = boto3.client("stepfunctions")
@@ -65,13 +65,11 @@ def post(event):
     elif rtype == 2:
         sub_command = request["data"]["options"][0]["name"]
 
-        h = hashlib.sha256()
-        h.update(bytes(interaction_token, "utf-8"))
-        execution_name = h.hexdigest()
+        execution_name = f"{interaction_id}"
 
         print("Starting State Machine")
         sfn.start_execution(
-            stateMachineArn=os.environ.get("STATE_MACHINE"),
+            stateMachineArn=stateMachineArn,
             name=execution_name,
             input=json.dumps(
                 {
@@ -82,14 +80,9 @@ def post(event):
             ),
         )
         return {
-            "statusCode": 202,
+            "statusCode": 200,
             "headers": {"Content-Type": "application/json"},
-            #
-            #"body": json.dumps(
-            #    {
-            #        "type": 5,
-            #    }
-            #),
+            "body": json.dumps( { "type": 5, })
         }
     else:
         return go_away()
