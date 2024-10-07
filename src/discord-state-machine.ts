@@ -1,11 +1,12 @@
 import * as path from 'path';
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
 import { Grant, IGrantable } from 'aws-cdk-lib/aws-iam';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Choice, Condition, DefinitionBody, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
 import { CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
+import { Constants } from './constants';
 
 //new StateMachine(scope: Construct, id: string, props: StateMachineProps)
 
@@ -28,10 +29,11 @@ export class DiscordStateMachine extends Construct {
     this.cluster = this.service.cluster;
 
     const responseFunction = new Function(this, 'DiscordResponse', {
+      runtime: Constants.LAMBDA_RUNTIME,
+      architecture: Architecture.ARM_64,
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
-          image: Runtime.PYTHON_3_9.bundlingImage,
-          platform: 'linux/amd64',
+          image: Constants.LAMBDA_RUNTIME.bundlingImage,
           command: [
             'bash', '-c',
             'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
@@ -39,7 +41,6 @@ export class DiscordStateMachine extends Construct {
         },
       }),
       handler: 'discord_response.handle',
-      runtime: Runtime.PYTHON_3_9,
       environment: {
         SECRET_NAME: props.discordSecret.secretName,
       },

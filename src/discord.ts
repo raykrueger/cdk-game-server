@@ -3,11 +3,12 @@ import { ApiGatewayToLambda } from '@aws-solutions-constructs/aws-apigateway-lam
 import { AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
 import { BaseService } from 'aws-cdk-lib/aws-ecs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { DiscordStateMachine } from './discord-state-machine';
 import { DiscordBotCustomResource } from './discord_bot_custom_resource';
+import { Constants } from './constants';
 
 export interface DiscordBotOptions {
   commandName: string;
@@ -31,11 +32,11 @@ export class DiscordBotConstruct extends Construct {
     });
 
     const f = new Function(this, 'DiscordBotFunction', {
-      runtime: Runtime.PYTHON_3_9,
+      runtime: Constants.LAMBDA_RUNTIME,
+      architecture: Architecture.ARM_64,
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
-          image: Runtime.PYTHON_3_9.bundlingImage,
-          platform: 'linux/amd64',
+          image: Constants.LAMBDA_RUNTIME.bundlingImage,
           command: [
             'bash', '-c',
             'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',

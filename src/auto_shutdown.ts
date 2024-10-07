@@ -3,7 +3,7 @@ import { ComparisonOperator } from 'aws-cdk-lib/aws-cloudwatch';
 import { SnsAction } from 'aws-cdk-lib/aws-cloudwatch-actions';
 import { BaseService } from 'aws-cdk-lib/aws-ecs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Topic } from 'aws-cdk-lib/aws-sns';
 import { LambdaSubscription } from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
@@ -40,6 +40,7 @@ export class AutoShutdown extends Construct {
 
   buildShutdownFunction(code: Code) {
     return new Function(this, 'AutoShutdownFunction', {
+      architecture: Architecture.ARM_64,
       code,
       handler: 'autoshutdown.handler',
       runtime: Runtime.PYTHON_3_9,

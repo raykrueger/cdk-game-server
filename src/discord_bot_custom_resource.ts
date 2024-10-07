@@ -2,10 +2,11 @@ import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
 import { CustomResource, RemovalPolicy } from 'aws-cdk-lib';
-import { Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
+import { Architecture, Code, Function, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Provider } from 'aws-cdk-lib/custom-resources';
 import { Construct } from 'constructs';
+import { Constants } from './constants';
 
 export interface DiscordBotCustomResourceProps {
   secret: ISecret;
@@ -28,8 +29,7 @@ export class DiscordBotCustomResource extends Construct {
 
     const code = Code.fromAsset(path.join(__dirname, '../resources/functions/discord_provider'), {
       bundling: {
-        image: Runtime.PYTHON_3_9.bundlingImage,
-        platform: 'linux/amd64',
+        image: Constants.LAMBDA_RUNTIME.bundlingImage,
         command: [
           'bash', '-c',
           'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
@@ -38,7 +38,8 @@ export class DiscordBotCustomResource extends Construct {
     });
 
     const f = new Function(this, 'DiscordBotCRHandler', {
-      runtime: Runtime.PYTHON_3_9,
+      runtime: Constants.LAMBDA_RUNTIME,
+      architecture: Architecture.ARM_64,
       code,
       handler: 'discord_provider.on_event',
       environment: {
