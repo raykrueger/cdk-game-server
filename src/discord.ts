@@ -37,6 +37,7 @@ export class DiscordBotConstruct extends Construct {
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
         bundling: {
           image: Constants.LAMBDA_RUNTIME.bundlingImage,
+          platform: Constants.LAMBDA_ARCH.dockerPlatform,
           command: [
             'bash', '-c',
             'pip install -r requirements.txt -t /asset-output && cp -au . /asset-output',
