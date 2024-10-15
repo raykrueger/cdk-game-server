@@ -1,17 +1,18 @@
+import * as path from 'path';
+import { SecretValue } from 'aws-cdk-lib';
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
 import { Authorization, Connection } from 'aws-cdk-lib/aws-events';
 import { Grant, IGrantable, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
-import { Choice, Condition, CustomState, DefinitionBody, JsonPath, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
-import { CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
+import { Choice, Condition, CustomState, DefinitionBody, JsonPath, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
+import { CallAwsService } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
-import * as path from 'path';
 import { Constants } from './constants';
 
 interface DiscordInteractionStateProps {
-  connection: Connection
-  message: string
+  connection: Connection;
+  message: string;
 }
 
 class DiscordInteractionState extends CustomState {
@@ -22,20 +23,46 @@ class DiscordInteractionState extends CustomState {
         Resource: 'arn:aws:states:::http:invoke',
         Parameters: {
           'ApiEndpoint.$': JsonPath.format('https://discord.com/api/v10/interactions/{}/{}/callback', JsonPath.stringAt('$.InteractionId'), JsonPath.stringAt('$.InteractionToken')),
-          Method: 'POST',
-          Authentication: {
+          'Method': 'POST',
+          'Authentication': {
             ConnectionArn: props.connection.connectionArn,
           },
-          RequestBody: {
+          'RequestBody': {
             type: 4,
             data: {
-              content: props.message
-            }
-          }
+              content: props.message,
+            },
+          },
         },
-        ResultPath: null
-      }
-    })
+        ResultPath: null,
+      },
+    });
+  }
+}
+
+interface DiscordUpdateStateProps extends DiscordInteractionStateProps {
+  appId: SecretValue;
+}
+
+class DiscordUpdateState extends CustomState {
+  constructor(scope: Construct, id: string, props: DiscordUpdateStateProps) {
+    super(scope, id, {
+      stateJson: {
+        Type: 'Task',
+        Resource: 'arn:aws:states:::http:invoke',
+        Parameters: {
+          'ApiEndpoint.$': JsonPath.format(`https://discord.com/api/v10/webhooks/${props.appId.unsafeUnwrap()}/{}/messages/@original`, JsonPath.stringAt('$.InteractionToken')),
+          'Method': 'PATCH',
+          'Authentication': {
+            ConnectionArn: props.connection.connectionArn,
+          },
+          'RequestBody': {
+            content: props.message,
+          },
+        },
+        ResultPath: null,
+      },
+    });
   }
 }
 
@@ -50,20 +77,23 @@ export class DiscordStateMachine extends Construct {
   private readonly cluster: ICluster;
   private readonly stateMachine: StateMachine;
   readonly stateMachineArn: string;
-  private readonly connection: Connection
+  private readonly connection: Connection;
+  private readonly responseFunction: Function;
+  private readonly appId: SecretValue;
 
   constructor(scope: Construct, id: string, props: DiscordStateMachineProps) {
     super(scope, id);
 
     this.service = props.service;
     this.cluster = this.service.cluster;
+    this.appId = props.discordSecret.secretValueFromJson('AppId');
 
     this.connection = new Connection(this, 'Connection', {
       authorization: Authorization.apiKey('Authorization', props.discordSecret.secretValueFromJson('Authorization')),
       description: 'Discord bot API Connection',
     });
 
-    const responseFunction = new Function(this, 'DiscordResponse', {
+    this.responseFunction = new Function(this, 'DiscordResponse', {
       runtime: Constants.LAMBDA_RUNTIME,
       architecture: Constants.LAMBDA_ARCH,
       code: Code.fromAsset(path.join(__dirname, '../resources/functions/discord'), {
@@ -81,33 +111,9 @@ export class DiscordStateMachine extends Construct {
         SECRET_NAME: props.discordSecret.secretName,
       },
     });
-    props.discordSecret.grantRead(responseFunction);
+    props.discordSecret.grantRead(this.responseFunction);
 
     const success = new Succeed(this, 'Success');
-
-    const sendDiscordResponse = new LambdaInvoke(this, 'SendResponse', {
-      lambdaFunction: responseFunction,
-    }).next(success);
-
-    const serverIsUpMessage = new Pass(this, 'ServerIsUpMessage', {
-      result: Result.fromObject({ Message: 'Server is up.' }),
-      resultPath: '$.Discord',
-    }).next(sendDiscordResponse);
-
-    const serverIsDownMessage = new Pass(this, 'ServerIsDownMessage', {
-      result: Result.fromObject({ Message: 'Server is down.' }),
-      resultPath: '$.Discord',
-    }).next(sendDiscordResponse);
-
-    const wutMessage = new Pass(this, 'WutMessage', {
-      result: Result.fromObject({ Message: 'Wut?' }),
-      resultPath: '$.Discord',
-    }).next(sendDiscordResponse);
-
-    const serverStartingMessage = new Pass(this, 'ServerStartingMessage', {
-      result: Result.fromObject({ Message: 'Server is starting up! Give it 10 minutes or so.' }),
-      resultPath: '$.Discord',
-    }).next(sendDiscordResponse);
 
     const describeServices = new CallAwsService(this, 'DescribeServices', {
       service: 'ecs',
@@ -124,23 +130,23 @@ export class DiscordStateMachine extends Construct {
       resultPath: '$.Service',
     }).next(
       new Choice(this, 'DescribeServicesChoice')
-        .when(Condition.numberGreaterThan('$.Service.RunningCount', 0), serverIsUpMessage)
-        .otherwise(serverIsDownMessage),
+        .when(Condition.numberGreaterThan('$.Service.RunningCount', 0), this.updateResponseMessage('ServerIsUp', 'The server is up!').next(success))
+        .otherwise(this.updateResponseMessage('ServerIsDown', 'The Server is down.').next(success)),
     );
 
     const startService = this.updateService('StartService', 1).next(
       new Choice(this, 'StartServiceChoice')
-        .when(Condition.numberGreaterThan('$.Service.RunningCount', 0), serverIsUpMessage)
-        .otherwise(serverStartingMessage),
+        .when(Condition.numberGreaterThan('$.Service.RunningCount', 0), this.updateResponseMessage('StartServiceUp', 'The server is already running!').next(success))
+        .otherwise(this.updateResponseMessage('StartServiceStarting', 'The Server is starting up!').next(success)),
     );
 
     const stopService = this.updateService('StopService', 0).next(describeServices);
 
     const subCommandChoice = new Choice(this, 'SubCommandChoice')
-      .when(Condition.stringEquals('$.SubCommand', 'status'), this.newInitialResponse('DescribeResponse').next(describeServices))
-      .when(Condition.stringEquals('$.SubCommand', 'start'), this.newInitialResponse('StartServiceResponse').next(startService))
-      .when(Condition.stringEquals('$.SubCommand', 'stop'), this.newInitialResponse('StopServiceResponse').next(stopService))
-      .otherwise(wutMessage);
+      .when(Condition.stringEquals('$.SubCommand', 'status'), this.newInitialResponse('DescribeResponse', 'Checking the server...').next(describeServices))
+      .when(Condition.stringEquals('$.SubCommand', 'start'), this.newInitialResponse('StartServiceResponse', 'Starting the server...').next(startService))
+      .when(Condition.stringEquals('$.SubCommand', 'stop'), this.newInitialResponse('StopServiceResponse', 'Stopping the server...').next(stopService))
+      .otherwise(this.newInitialResponse('WutMessage', 'Wut?'));
 
     this.stateMachine = new StateMachine(this, 'StateMachine', {
       definitionBody: DefinitionBody.fromChainable(subCommandChoice),
@@ -156,10 +162,10 @@ export class DiscordStateMachine extends Construct {
             resources: ['*'],
             conditions: {
               StringEquals: {
-                'states:HTTPMethod': 'POST',
+                'states:HTTPMethod': ['POST', 'PATCH'],
               },
               StringLike: {
-                'states:HTTPEndpoint': `https://discord.com/api/*`,
+                'states:HTTPEndpoint': 'https://discord.com/api/*',
               },
             },
           }),
@@ -181,20 +187,28 @@ export class DiscordStateMachine extends Construct {
             ],
           }),
 
-        ]
-      })
-    )
+        ],
+      }),
+    );
   }
 
   grantStartExecution(identity: IGrantable): Grant {
     return this.stateMachine.grantStartExecution(identity);
   }
 
-  private newInitialResponse(id: string) {
+  private updateResponseMessage(id: string, message: string) {
+    return new DiscordUpdateState(this, id, {
+      appId: this.appId,
+      connection: this.connection,
+      message: message,
+    });
+  }
+
+  private newInitialResponse(id: string, message: string = 'Thinking') {
     return new DiscordInteractionState(this, id, {
       connection: this.connection,
-      message: 'Thinking'
-    })
+      message: message,
+    });
   }
 
   private updateService(id: string, desiredCount: number): CallAwsService {
