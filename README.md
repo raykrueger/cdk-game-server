@@ -219,13 +219,13 @@ names have to be exact**, so copy them from here.
 
 | Key | Value |
 |-----|-------|
-| PublicKey | The Public key from your Application |
-| AppId | Your Application ID |
-| GuildId | Your Guild ID, copied from the server |
-| BotToken | The _Token_ we copied from the Bot page in Discord |
-| Authorization | Bot _Token_|
+| PublicKey | < The Public key from your Application > |
+| AppId | < Your Application ID > |
+| GuildId | <Your Guild ID, copied from the server > |
+| BotToken | < The _Token_ we copied from the Bot page in Discord > |
+| Authorization | Bot < _Token_ >|
 
-Note: The Authorization Key is the word "Bot", a space, and your bot token. Yes, currently this requires two keys.
+Note: The Authorization Value is the word "Bot", a space, and your bot token. Yes, currently this requires two keys.
 
 For the Encryption key you can choose the default, unless you know you want
 something else.
