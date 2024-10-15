@@ -150,6 +150,7 @@ export class DiscordStateMachine extends Construct {
 
     this.stateMachine = new StateMachine(this, 'StateMachine', {
       definitionBody: DefinitionBody.fromChainable(subCommandChoice),
+      tracingEnabled: true,
     });
 
     this.stateMachineArn = this.stateMachine.stateMachineArn;

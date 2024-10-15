@@ -3,7 +3,7 @@ import { ApiGatewayToLambda } from '@aws-solutions-constructs/aws-apigateway-lam
 import { AuthorizationType } from 'aws-cdk-lib/aws-apigateway';
 import { BaseService } from 'aws-cdk-lib/aws-ecs';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
-import { Code, Function } from 'aws-cdk-lib/aws-lambda';
+import { Code, Function, Tracing } from 'aws-cdk-lib/aws-lambda';
 import { Secret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { Constants } from './constants';
@@ -45,6 +45,7 @@ export class DiscordBotConstruct extends Construct {
         },
       }),
       handler: 'discord.handler',
+      tracing: Tracing.ACTIVE,
       environment: {
         CLUSTER_ARN: props.service.cluster.clusterArn,
         SERVICE_ARN: props.service.serviceArn,

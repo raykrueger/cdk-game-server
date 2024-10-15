@@ -3,6 +3,7 @@ import os
 import json
 from nacl.signing import VerifyKey
 from nacl.exceptions import BadSignatureError
+from aws_xray_sdk.core import xray_recorder
 
 cluster = os.environ.get("CLUSTER_ARN")
 service = os.environ.get("SERVICE_ARN")
@@ -15,7 +16,6 @@ secret_name = os.environ.get("SECRET_NAME")
 secrets = secrets_manager.get_secret_value(SecretId=secret_name)["SecretString"]
 secrets = json.loads(secrets)
 
-
 def go_away():
     return {
         "statusCode": 400,
@@ -23,21 +23,15 @@ def go_away():
         "body": "wut?",
     }
 
-
-def is_server_up():
-    response = ecs.describe_services(cluster=cluster, services=[service])
-    count = response["services"][0]["runningCount"]
-    return count > 0
-
-
-def post(event):
-    request = json.loads(event["body"])
-    print("Request: " + json.dumps(request))
-
+@xray_recorder.capture()
+def verify_request(signature, timestamp, body):
     verify_key = VerifyKey(bytes.fromhex(secrets["PublicKey"]))
+    verify_key.verify(f"{timestamp}{body}".encode(), bytes.fromhex(signature))
 
-    signature = event["headers"]["x-signature-ed25519"]
-    timestamp = event["headers"]["x-signature-timestamp"]
+@xray_recorder.capture()
+def post(event):
+    body = str(event["body"])
+    request = json.loads(body)
 
     rtype = request["type"]
     print("Request Type:" + str(rtype))
@@ -46,8 +40,10 @@ def post(event):
     interaction_token = request["token"]
 
     try:
-        body = str(event["body"])
-        verify_key.verify(f"{timestamp}{body}".encode(), bytes.fromhex(signature))
+        signature = event["headers"]["x-signature-ed25519"]
+        timestamp = event["headers"]["x-signature-timestamp"]
+
+        verify_request(signature, timestamp, body)
     except BadSignatureError:
         return {
             "statusCode": 401,
@@ -89,7 +85,6 @@ def post(event):
 
 
 def handler(event, context):
-    print("Received event: " + json.dumps(event))
     if event["httpMethod"] == "POST":
         return post(event)
     return go_away()
