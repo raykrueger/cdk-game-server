@@ -1,6 +1,6 @@
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
 import { Authorization, Connection } from 'aws-cdk-lib/aws-events';
-import { Grant, IGrantable } from 'aws-cdk-lib/aws-iam';
+import { Grant, IGrantable, Policy, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
 import { Choice, Condition, CustomState, DefinitionBody, JsonPath, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
@@ -21,7 +21,7 @@ class DiscordInteractionState extends CustomState {
         Type: 'Task',
         Resource: 'arn:aws:states:::http:invoke',
         Parameters: {
-          'ApiEndpoint.$': JsonPath.format('https://discord.com/api/v10/interactions/{}/{}/callback', JsonPath.stringAt('$.Interactionid'), JsonPath.stringAt('$.InteractionToken')),
+          'ApiEndpoint.$': JsonPath.format('https://discord.com/api/v10/interactions/{}/{}/callback', JsonPath.stringAt('$.InteractionId'), JsonPath.stringAt('$.InteractionToken')),
           Method: 'POST',
           Authentication: {
             ConnectionArn: props.connection.connectionArn,
@@ -33,6 +33,7 @@ class DiscordInteractionState extends CustomState {
             }
           }
         },
+        ResultPath: null
       }
     })
   }
@@ -146,6 +147,43 @@ export class DiscordStateMachine extends Construct {
     });
 
     this.stateMachineArn = this.stateMachine.stateMachineArn;
+
+    this.stateMachine.role.attachInlinePolicy(
+      new Policy(this, 'HttpPolicy', {
+        statements: [
+          new PolicyStatement({
+            actions: ['states:InvokeHTTPEndpoint'],
+            resources: ['*'],
+            conditions: {
+              StringEquals: {
+                'states:HTTPMethod': 'POST',
+              },
+              StringLike: {
+                'states:HTTPEndpoint': `https://discord.com/api/*`,
+              },
+            },
+          }),
+
+          new PolicyStatement({
+            actions: ['events:RetrieveConnectionCredentials'],
+            resources: [
+              this.connection.connectionArn,
+            ],
+          }),
+
+          new PolicyStatement({
+            actions: [
+              'secretsmanager:GetSecretValue',
+              'secretsmanager:DescribeSecret',
+            ],
+            resources: [
+              'arn:aws:secretsmanager:*:*:secret:events!connection/*',
+            ],
+          }),
+
+        ]
+      })
+    )
   }
 
   grantStartExecution(identity: IGrantable): Grant {
