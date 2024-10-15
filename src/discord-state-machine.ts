@@ -1,14 +1,42 @@
-import * as path from 'path';
 import { BaseService, ICluster } from 'aws-cdk-lib/aws-ecs';
+import { Authorization, Connection } from 'aws-cdk-lib/aws-events';
 import { Grant, IGrantable } from 'aws-cdk-lib/aws-iam';
 import { Code, Function } from 'aws-cdk-lib/aws-lambda';
 import { ISecret } from 'aws-cdk-lib/aws-secretsmanager';
-import { Choice, Condition, DefinitionBody, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
+import { Choice, Condition, CustomState, DefinitionBody, JsonPath, Pass, Result, StateMachine, Succeed } from 'aws-cdk-lib/aws-stepfunctions';
 import { CallAwsService, LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
+import * as path from 'path';
 import { Constants } from './constants';
 
-//new StateMachine(scope: Construct, id: string, props: StateMachineProps)
+interface DiscordInteractionStateProps {
+  connection: Connection
+  message: string
+}
+
+class DiscordInteractionState extends CustomState {
+  constructor(scope: Construct, id: string, props: DiscordInteractionStateProps) {
+    super(scope, id, {
+      stateJson: {
+        Type: 'Task',
+        Resource: 'arn:aws:states:::http:invoke',
+        Parameters: {
+          'ApiEndpoint.$': JsonPath.format('https://discord.com/api/v10/interactions/{}/{}/callback', JsonPath.stringAt('$.Interactionid'), JsonPath.stringAt('$.InteractionToken')),
+          Method: 'POST',
+          Authentication: {
+            ConnectionArn: props.connection.connectionArn,
+          },
+          RequestBody: {
+            type: 4,
+            data: {
+              content: 'Thinking!'
+            }
+          }
+        },
+      }
+    })
+  }
+}
 
 export interface DiscordStateMachineProps {
   service: BaseService;
@@ -21,12 +49,18 @@ export class DiscordStateMachine extends Construct {
   private readonly cluster: ICluster;
   private readonly stateMachine: StateMachine;
   readonly stateMachineArn: string;
+  private readonly connection: Connection
 
   constructor(scope: Construct, id: string, props: DiscordStateMachineProps) {
     super(scope, id);
 
     this.service = props.service;
     this.cluster = this.service.cluster;
+
+    this.connection = new Connection(this, 'Connection', {
+      authorization: Authorization.apiKey('Authorization', props.discordSecret.secretValueFromJson('Authorization')),
+      description: 'Discord bot API Connection',
+    });
 
     const responseFunction = new Function(this, 'DiscordResponse', {
       runtime: Constants.LAMBDA_RUNTIME,
@@ -102,9 +136,9 @@ export class DiscordStateMachine extends Construct {
     const stopService = this.updateService('StopService', 0).next(describeServices);
 
     const subCommandChoice = new Choice(this, 'SubCommandChoice')
-      .when(Condition.stringEquals('$.SubCommand', 'status'), describeServices)
-      .when(Condition.stringEquals('$.SubCommand', 'start'), startService)
-      .when(Condition.stringEquals('$.SubCommand', 'stop'), stopService)
+      .when(Condition.stringEquals('$.SubCommand', 'status'), this.newInitialResponse('DescribeResponse').next(describeServices))
+      .when(Condition.stringEquals('$.SubCommand', 'start'), this.newInitialResponse('StartServiceResponse').next(startService))
+      .when(Condition.stringEquals('$.SubCommand', 'stop'), this.newInitialResponse('StopServiceResponse').next(stopService))
       .otherwise(wutMessage);
 
     this.stateMachine = new StateMachine(this, 'StateMachine', {
@@ -116,6 +150,13 @@ export class DiscordStateMachine extends Construct {
 
   grantStartExecution(identity: IGrantable): Grant {
     return this.stateMachine.grantStartExecution(identity);
+  }
+
+  private newInitialResponse(id: string) {
+    return new DiscordInteractionState(this, id, {
+      connection: this.connection,
+      message: 'Thinking'
+    })
   }
 
   private updateService(id: string, desiredCount: number): CallAwsService {

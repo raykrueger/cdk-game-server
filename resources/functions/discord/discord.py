@@ -80,9 +80,9 @@ def post(event):
             ),
         )
         return {
-            "statusCode": 200,
+            "statusCode": 202,
             "headers": {"Content-Type": "application/json"},
-            "body": json.dumps( { "type": 5, })
+            #"body": json.dumps( { "type": 5, })
         }
     else:
         return go_away()
