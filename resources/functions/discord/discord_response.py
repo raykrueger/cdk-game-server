@@ -9,7 +9,7 @@ secrets = secrets_manager.get_secret_value(SecretId=secret_name)["SecretString"]
 secrets = json.loads(secrets)
 
 app_id = secrets["AppId"]
-bot_token = secrets["BotToken"]
+authorization = secrets["Authorization"]
 
 
 def handle(event, context):
@@ -17,17 +17,18 @@ def handle(event, context):
     #interaction_id = event["InteractionId"]
     interaction_token = event["InteractionToken"]
     message = event["Discord"]["Message"]
-    url = f"https://discord.com/api/v10/webhooks/{app_id}/{interaction_token}"
+
+    url = f"https://discord.com/api/v10/webhooks/{app_id}/{interaction_token}/messages/@original"
     
     headers = {
-        "Authorization": f"Bot {bot_token}",
+        "Authorization": authorization,
     }
 
     body = {
       "content": message
     }
 
-    res = requests.post(url, json=body, headers=headers)
+    res = requests.patch(url, json=body, headers=headers)
 
     if not res.ok:
         print(f"ERROR: {res.text}") 

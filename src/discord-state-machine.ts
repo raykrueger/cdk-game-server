@@ -29,7 +29,7 @@ class DiscordInteractionState extends CustomState {
           RequestBody: {
             type: 4,
             data: {
-              content: 'Thinking!'
+              content: props.message
             }
           }
         },
