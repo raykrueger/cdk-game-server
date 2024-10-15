@@ -223,6 +223,9 @@ names have to be exact**, so copy them from here.
 | AppId | Your Application ID |
 | GuildId | Your Guild ID, copied from the server |
 | BotToken | The _Token_ we copied from the Bot page in Discord |
+| Authorization | Bot _Token_|
+
+Note: The Authorization Key is the word "Bot", a space, and your bot token. Yes, currently this requires two keys.
 
 For the Encryption key you can choose the default, unless you know you want
 something else.
