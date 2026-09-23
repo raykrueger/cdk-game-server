@@ -1,9 +1,11 @@
 const { awscdk } = require('projen');
+const { NodePackageManager } = require('projen/lib/javascript');
 const { NpmAccess } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
-  cdkVersion: '2.161.1',
+  cdkVersion: '2.270.0',
+  packageManager: NodePackageManager.YARN_CLASSIC,
   defaultReleaseBranch: 'main',
   name: '@raykrueger/cdk-game-server',
   repositoryUrl: 'https://github.com/raykrueger/cdk-game-server.git',
@@ -19,7 +21,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@raykrueger/cdk-fargate-public-dns',
     '@aws-solutions-constructs/aws-apigateway-lambda',
     '@aws-solutions-constructs/core',
-    'constructs',
+    'constructs@^10.5.1',
   ],
   devDeps: [
     '@types/node',

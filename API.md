@@ -11,9 +11,9 @@ cheaply as possible, which means some availability and reliability has been
 sacrificed.
 
 Default configuration:
-    Single AZ with a Single Public Subnet
-    Fargate Spot capacity provider
-    EFS General performance file system for storage
+   Single AZ with a Single Public Subnet
+   Fargate Spot capacity provider
+   EFS General performance file system for storage
 
 #### Initializers <a name="Initializers" id="@raykrueger/cdk-game-server.GameServer.Initializer"></a>
 
@@ -54,6 +54,7 @@ new GameServer(scope: Construct, id: string, props: GameServerProps)
 | **Name** | **Description** |
 | --- | --- |
 | <code><a href="#@raykrueger/cdk-game-server.GameServer.toString">toString</a></code> | Returns a string representation of this construct. |
+| <code><a href="#@raykrueger/cdk-game-server.GameServer.with">with</a></code> | Applies one or more mixins to this construct. |
 
 ---
 
@@ -64,6 +65,27 @@ public toString(): string
 ```
 
 Returns a string representation of this construct.
+
+##### `with` <a name="with" id="@raykrueger/cdk-game-server.GameServer.with"></a>
+
+```typescript
+public with(mixins: ...IMixin[]): IConstruct
+```
+
+Applies one or more mixins to this construct.
+
+Mixins are applied in order. The list of constructs is captured at the
+start of the call, so constructs added by a mixin will not be visited.
+Use multiple `with()` calls if subsequent mixins should apply to added
+constructs.
+
+###### `mixins`<sup>Required</sup> <a name="mixins" id="@raykrueger/cdk-game-server.GameServer.with.parameter.mixins"></a>
+
+- *Type:* ...constructs.IMixin[]
+
+The mixins to apply.
+
+---
 
 #### Static Functions <a name="Static Functions" id="Static Functions"></a>
 
@@ -531,7 +553,7 @@ const gameServerProps: GameServerProps = { ... }
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.dnsConfig">dnsConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.enableExecuteCommand">enableExecuteCommand</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.logging">logging</a></code> | <code>aws-cdk-lib.aws_ecs.LogDriver</code> | Logging driver to use. |
-| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | Memory limit in 1024 incrmements. |
+| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.memoryLimitMiB">memoryLimitMiB</a></code> | <code>number</code> | Memory limit in 1024 increments. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.useSpot">useSpot</a></code> | <code>boolean</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | Provide an existing VPC to deploy into. |
 
@@ -696,9 +718,9 @@ public readonly memoryLimitMiB: number;
 ```
 
 - *Type:* number
-- *Default:* DEFAULT_VCPU
+- *Default:* DEFAULT_MEMORY
 
-Memory limit in 1024 incrmements.
+Memory limit in 1024 increments.
 
 > [https://aws.amazon.com/fargate/pricing/](https://aws.amazon.com/fargate/pricing/)
 

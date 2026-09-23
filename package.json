@@ -5,28 +5,29 @@
     "url": "https://github.com/raykrueger/cdk-game-server.git"
   },
   "scripts": {
-    "build": "npx projen build",
-    "bump": "npx projen bump",
-    "clobber": "npx projen clobber",
-    "compat": "npx projen compat",
-    "compile": "npx projen compile",
-    "default": "npx projen default",
-    "docgen": "npx projen docgen",
-    "eject": "npx projen eject",
-    "eslint": "npx projen eslint",
-    "package": "npx projen package",
-    "package-all": "npx projen package-all",
-    "package:js": "npx projen package:js",
-    "post-compile": "npx projen post-compile",
-    "post-upgrade": "npx projen post-upgrade",
-    "pre-compile": "npx projen pre-compile",
-    "release": "npx projen release",
-    "test": "npx projen test",
-    "test:watch": "npx projen test:watch",
-    "unbump": "npx projen unbump",
-    "upgrade": "npx projen upgrade",
-    "watch": "npx projen watch",
-    "projen": "npx projen"
+    "build": "projen build",
+    "bump": "projen bump",
+    "bump:releasable-commits": "projen bump:releasable-commits",
+    "clobber": "projen clobber",
+    "compat": "projen compat",
+    "compile": "projen compile",
+    "default": "projen default",
+    "docgen": "projen docgen",
+    "eject": "projen eject",
+    "eslint": "projen eslint",
+    "package": "projen package",
+    "package-all": "projen package-all",
+    "package:js": "projen package:js",
+    "post-compile": "projen post-compile",
+    "post-upgrade": "projen post-upgrade",
+    "pre-compile": "projen pre-compile",
+    "release": "projen release",
+    "test": "projen test",
+    "test:watch": "projen test:watch",
+    "unbump": "projen unbump",
+    "upgrade": "projen upgrade",
+    "watch": "projen watch",
+    "projen": "projen"
   },
   "author": {
     "name": "Ray Krueger",
@@ -34,39 +35,36 @@
     "organization": false
   },
   "devDependencies": {
+    "@stylistic/eslint-plugin": "^2",
     "@types/jest": "^27",
     "@types/node": "^18 <= 18.11.19",
-    "@typescript-eslint/eslint-plugin": "^7",
-    "@typescript-eslint/parser": "^7",
-    "aws-cdk-lib": "2.161.1",
-    "commit-and-tag-version": "^12",
-    "eslint": "^8",
+    "@typescript-eslint/eslint-plugin": "^8",
+    "@typescript-eslint/parser": "^8",
+    "aws-cdk-lib": "2.270.0",
+    "commit-and-tag-version": "^13",
+    "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.30.0",
     "jest": "^27",
-    "jest-junit": "^15",
-    "jsii": "1.x",
+    "jest-junit": "^17",
+    "jsii": "~5.9.0",
     "jsii-diff": "^1.103.1",
     "jsii-docgen": "^10.5.0",
     "jsii-pacmak": "^1.103.1",
-    "jsii-rosetta": "1.x",
-    "projen": "^0.87.4",
+    "jsii-rosetta": "~5.9.0",
+    "projen": "^0.103.27",
     "ts-jest": "^27",
     "typescript": "^5.6.2"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.161.1",
-    "constructs": "^10.0.5"
+    "aws-cdk-lib": "^2.270.0",
+    "constructs": "^10.5.1"
   },
   "dependencies": {
     "@aws-solutions-constructs/aws-apigateway-lambda": "^2.70.0",
     "@aws-solutions-constructs/core": "^2.70.0",
     "@raykrueger/cdk-fargate-public-dns": "0.0.21",
-    "constructs": "^10.3.0"
-  },
-  "resolutions": {
-    "@types/babel__traverse": "7.18.2",
-    "@types/prettier": "2.6.0"
+    "constructs": "^10.5.1"
   },
   "keywords": [
     "cdk"
@@ -74,8 +72,16 @@
   "engines": {
     "node": ">= 18.20.3"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "yarn",
+      "version": "1.22.22",
+      "onFail": "ignore"
+    }
+  },
   "main": "lib/index.js",
   "license": "Apache-2.0",
+  "stability": "stable",
   "publishConfig": {
     "access": "public"
   },
@@ -117,19 +123,16 @@
     "preset": "ts-jest",
     "globals": {
       "ts-jest": {
-        "tsconfig": "tsconfig.dev.json"
+        "tsconfig": "test/tsconfig.json"
       }
     }
   },
   "types": "lib/index.d.ts",
-  "stability": "stable",
   "jsii": {
     "outdir": "dist",
     "targets": {},
-    "tsc": {
-      "outDir": "lib",
-      "rootDir": "src"
-    }
+    "tsconfig": "tsconfig.json",
+    "validateTsconfig": "strict"
   },
   "awscdkio": {
     "twitter": "raykrueger",
