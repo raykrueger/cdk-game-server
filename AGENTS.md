@@ -15,6 +15,14 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - Single test: `npx jest test/game-server.test.ts` (or pass a `-t` test name to `npx projen test`).
 - `npx projen watch` — `jsii -w` incremental compile.
 - Compilation is `jsii`, not plain `tsc` — it enforces jsii API constraints (no enums, restricted types) on public exports.
+- On Node versions jsii hasn't tested, compile prints a big warning; silence with `JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION=1` if it obscures real errors.
+
+## Upgrading projen / CDK
+
+- `yarn upgrade projen` will NOT cross a minor boundary (caret on 0.x is minor-pinned). Use `yarn add -D projen@^X.Y.Z` instead.
+- Then re-synth (`npx projen`) and verify with `npx projen build`; commit everything (source + generated) as one `chore:` commit.
+- `cdkVersion` in `.projenrc.js` controls `aws-cdk-lib` (pinned devDep, `^` peer). Bump it there, not in `package.json`.
+- `npx projen upgrade` bumps *all* deps and is what the `upgrade-main` workflow runs daily.
 
 ## Layout
 
