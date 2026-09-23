@@ -60,7 +60,7 @@ export interface GameServerProps {
   /**
    * Memory limit in 1024 incrmements.
    * @see https://aws.amazon.com/fargate/pricing/
-   * @default DEFAULT_VCPU
+   * @default DEFAULT_MEMORY
    */
   readonly memoryLimitMiB?: number;
 
