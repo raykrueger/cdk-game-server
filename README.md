@@ -1,62 +1,45 @@
 # cdk-game-server
 
-This AWS CDK Construct Library is designed to run dedicated game servers on
-Amazon Elastic Container Service (Amazon ECS) and AWS Fargate as cheaply as
-possible. However, it **will not** be free.
+Run dedicated game servers on AWS Fargate that shut themselves down when nobody's playing — so you only pay for game time, not 24/7.
 
-The simple description is we run a single instance of a game server container on
-AWS Fargate. We scale the desired tasks to 0 if the CPU utilization drops below
-5% for 30 minutes. We use a Discord /slash command to start the server when you
-want to play. We deploy no Load Balancers, we rely on public IP addresses.
+## What it does
 
-A slightly deeper description... We keep costs down by making a few
-architectural decisions. Firstly, we are going to use a VPC with only public
-subnets (similar to the default VPC in a new account). This eliminates the use
-of NAT Gateways in a _proper_ VPC. Secondly, we do not deploy any load balancers
-and simply expose the Fargate task with a public IP Address. The
-[cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns)
-library is used to add optional DNS updates for the Fargate public IP address.
-Thirdly, we deploy a Cloudwatch Alarm that triggers if CPU Utilization falls
-below 5% (configurable). The action for that alarm is an AWS Lambda function
-(via an Amazon SNS Topic) that sets the desired tasks on the ECS Service to 0.
-Game servers will have an EFS Filesystem created that is mounted game save data.
-**Note** that game server files should be stored __in__ the container, and not
-on EFS. Files inside the container are basically free as far as Fargate is
-concerned. Storing files on EFS is not free, so we only mount the save game
-paths. Finally, and optionally, a Discord slash command bot is deployed via AWS
-Step Functions and AWS Lambda. The Discord _bot_ is entirely serverless and is
-used to start the server if it is stopped, or check if the server is up.
+Running a dedicated server (Valheim, Satisfactory, Factorio, ...) on a cloud VM costs money even at 3am when nobody is connected. `cdk-game-server` is an [AWS CDK](https://aws.amazon.com/cdk/) construct library that deploys a single Fargate task for your game and scales the desired task count to **0** when CPU utilization drops below 5% for 30 minutes. When you want to play, a Discord slash command brings it back up.
 
-We will publish instructions for a few game servers we have tested, namely
-Valheim, Satisfactory, and Factorio.
+No load balancers, no NAT gateways, no private subnets — just the fewest possible billable things, while keeping game saves durable on EFS.
+
+### Architecture in one paragraph
+
+A public-subnet-only VPC runs one ECS Fargate task with a public IP. An EFS file system (general purpose, encrypted, auto-backup) is mounted only at the game-save path — game files stay in the (free) container, only save data pays EFS rates. A CloudWatch alarm watches CPU utilization and, after it stays below the threshold for the configured evaluation periods, publishes to an SNS topic whose Lambda subscriber sets the service's desired task count to 0. Fargate Spot capacity is used by default. Optionally, `cdk-fargate-public-dns` updates a Route 53 A record with the task's public IP, and an entirely serverless Discord bot (API Gateway + Step Functions + Lambda) can start or check the server.
+
+## Contents
+
+- [Prerequisites](#prerequisites)
+- [Quick start](#quick-start)
+- [Autoshutdown](#autoshutdown)
+- [Adding DNS support](#adding-dns-support)
+- [Setting up the Discord bot](#setting-up-the-discord-bot)
+- [Adding logging](#adding-logging)
+- [Tweaking autoshutdown](#tweaking-autoshutdown)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Prerequisites
 
-This library requires working knowledge of the AWS Cloud. You will have to
-create IAM Users, and navigate the AWS web console at times. If these are not
-subjects you are comfortable with, this likely isn't the library for you.
+This library requires working knowledge of AWS: you will create IAM resources and navigate the AWS console at times. If that isn't comfortable, this probably isn't the library for you.
 
-This software is released without warranty. There is no commitment that the
-costs of running this will be acceptable to your individual budget.
+- An AWS account and an IAM user with [API access](https://docs.aws.amazon.com/iam/latest/UserGuide/id_credentials_access-keys.html)
+- [Node.js](https://nodejs.org/) >= 18.20.3
+- (Optional) The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
 
-This software is released in a 0.0.x version state. Which means there
-are no guarantees of backwards compatibility with future changes. It also means
-there will be bugs.
+The library is released as a JavaScript npm package with TypeScript typings.
 
-You will be deploying this at your own risk.
+This software is released without warranty. There is no commitment that the cost of running this will be acceptable for your individual budget, and it is in a 0.0.x version state: no backwards-compatibility guarantees, and there will be bugs. You deploy at your own risk.
 
-Ok, let's go!
+## Quick start
 
-## Getting Started
-
-You will need an AWS account, and an IAM User with [API
-Access](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html).
-Optionally, you may want the [AWS
-CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
-installed.
-
-You will need NodeJS installed, anything greater than 16.x should be fine. Now
-make a directory, initialize a new cdk app, and install this library.
+Create a new CDK app and install the library:
 
 ``` bash
 mkdir cdk-my-server
@@ -65,281 +48,196 @@ npx cdk init app --language=typescript
 npm install --save @raykrueger/cdk-game-server
 ```
 
-Currently, we are only releasing the Typescript version of the library, in the
-future, we may release Python support. The Typescript version _should_ work with a
-Javascript-based application, but we'll use Typescript for this doc.
-
-Next, we'll edit `bin/cdk-my-server.ts` and remove all the boilerplate. Replace
-that with the following sample. We'll use Satisfactory as an example.
+Replace the boilerplate in `bin/cdk-my-server.ts` with a `GameServer` construct. Here is Satisfactory:
 
 ``` typescript
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib';
-import { Stack, Tags } from 'aws-cdk-lib';
-import { Vpc } from 'aws-cdk-lib/aws-ec2';
-import { AwsLogDriver, ContainerImage, Protocol } from 'aws-cdk-lib/aws-ecs';
-import { RetentionDays } from 'aws-cdk-lib/aws-logs';
+import { Stack } from 'aws-cdk-lib';
+import { ContainerImage, Protocol } from 'aws-cdk-lib/aws-ecs';
 import 'source-map-support/register';
 import { GameServer } from '@raykrueger/cdk-game-server';
 
 class GameStack extends Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
-    super(scope, id, props)
+    super(scope, id, props);
 
     new GameServer(this, 'Satisfactory', {
-      cpu: 2048, // 2 vcpu
-      memoryLimitMiB: 8192, // 8 gb
-      image: ContainerImage.fromRegistry("raykrueger/satisfactory-dedicated-server"),
+      cpu: 2048, // 2 vCPU
+      memoryLimitMiB: 8192, // 8 GB
+      image: ContainerImage.fromRegistry('raykrueger/satisfactory-dedicated-server'),
       gamePorts: [
         { portNumber: 7777, protocol: Protocol.UDP },
         { portNumber: 7777, protocol: Protocol.TCP },
       ],
       mountTarget: {
-        mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+        mountTarget: '/home/steam/.config/Epic/FactoryGame/Saved/SaveGames',
         aclGroupId: 1000,
-        aclUserId: 1000
+        aclUserId: 1000,
       },
     });
   }
 }
 
 const app = new cdk.App();
-new GameStack(app, "Satisfactory", { env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: 'us-east-2' } });
+new GameStack(app, 'Satisfactory', {
+  env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: 'us-east-2' },
+});
 ```
 
-This will deploy Satisfactory using the
-[raykrueger/satisfactory-dedicated-server](https://github.com/raykrueger/satisfactory-dedicated-server)
-container. We will initially give it 2 vCPUs and 4gb of memory (which will be
-fine to start with for Satisfactory). We expose the necessary ports for the
-server, which all use UDP. We then specify the _mountTarget_, which is where the
-container stores the game save files.
+This deploys Satisfactory using the [raykrueger/satisfactory-dedicated-server](https://github.com/raykrueger/satisfactory-dedicated-server) container with 2 vCPUs and 8 GB of memory. `gamePorts` opens the server's ports on the security group (any IPv4), and `mountTarget` is the container path where the game stores save files — that path is backed by EFS.
 
-Now let's deploy the application.
+Deploy:
 
 ``` bash
 npx cdk deploy
 ```
 
-You will be prompted to accept the security changes that occur, including
-creating IAM roles and Security Groups. If you accept that prompt, the
-deployment will commence and it will take a while.
+Accept the security changes prompt (IAM roles and security groups) and wait for the deployment to finish.
 
-Once that deployment is complete, you can open the AWS Console and look at your
-[Amazon ECS Clusters](https://console.aws.amazon.com/ecs/v2/clusters). You
-should see a long _Satisfactory-something-something_ name. All of the names are
-randomly generated from prefixes. Most aren't pretty.
+To find your server's IP in the console:
 
-1. Click into the Cluster, it will have one Service.
-1. Click into the Service, and click on the "Configuration
-and tasks" tab
-1. There will be one running Task. Click on the task, it will
-have an ID like 98adc2c0d39d428e81868e8e35bdf9ab.
-1. In the "Configuration" table, on the right you will see the Public IP. Copy that IP Address.
+1. Open [ECS Clusters](https://console.aws.amazon.com/ecs/v2/clusters) and click the `Satisfactory-...` cluster.
+2. Click the service, then the **Configuration and tasks** tab.
+3. Click the running task.
+4. In the **Configuration** table, on the right, copy the **Public IP**.
 
-Use that IP Address to connect to your server!
+Use that IP to connect. (Tired of copying IPs? See [Adding DNS support](#adding-dns-support).)
 
-### Autoshutdown Support
+## Autoshutdown
 
-Note that the server will shutdown in 30 minutes if it is idle. If it does, the _desired tasks_ count will be changed to 0 when that happens. To start the server again just update that _desired_ count to 1.
+The server shuts itself down when idle: if the container's CPU utilization stays below the threshold for the evaluation period, a Lambda sets the desired task count to 0. If it did, start it again by setting the **desired** count back to 1 — in the console, the AWS CLI, or with the Discord bot.
 
-## Adding DNS Support
+## Adding DNS support
 
-Copying the public IP address every time we start the server is annoying, so
-let's add DNS Support.
+Copying a new public IP every start is annoying. If you have a Route 53 hosted zone, the [cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns) library can keep an A record in sync with the Fargate task's public IP.
 
-If you have a Hosted Zone configured in Amazon Route 53, the
-[cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns)
-library support can update a DNS record for you. In your Hosted Zone, create a new
-_A Record_ and set the value to the Public IP from above (or 1.1.1.1 if the
-server isn't running). Be sure to set the TTL to 300 seconds (5 minutes), this
-ensures you don't have to wait forever, but is also reasonable.
+First, in your hosted zone, create an _A record_ for the server (point it at the public IP from above, or `1.1.1.1` if the server isn't running) with a TTL of **300 seconds**. That keeps records fresh without waiting forever after a shutdown.
 
-You'll add to the configuration above, after the `mountTarget`. The domainName is
-your fully qualified A Record you created previously. The hostedZone is the ID
-from Route 53, it usually starts with a _Z_.
+Then add `dnsConfig` to the construct:
 
 ``` typescript
 //previous code cut for brevity
-mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
+mountTarget: { mountTarget: '/home/steam/.config/Epic/FactoryGame/Saved/SaveGames' },
 dnsConfig: {
   domainName: 'satisfactory.example.com',
   hostzedZone: 'ZXXXXXXXXXXXXXXXXXXXX',
-  //optional: Delete this if using Route 53 the same account
-  //assumedRole: 'arn:aws:iam::111111111111:role/cross-account-r53-update'
+  //optional: Delete this if using Route 53 in the same account
+  //assumedRole: 'arn:aws:iam::111111111111:role/cross-account-r53-update',
 },
 ```
 
-Optionally, we can update Route 53 in a different account, see 
-[cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns)
-docs for more details.
+`domainName` is the fully qualified A record you created; `hostzedZone` is the hosted zone ID (starts with `Z`). For cross-account hosted zones, see the [cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns) docs.
 
-## Setting up Discord
+## Setting up the Discord bot
 
-### Create a Discord Bot
+### Create a Discord bot
 
-Logging into the AWS console and updating the desired tasks count, or doing it
-from the AWS CLI, works, but we can do better. The `cdk-game-sever` construct
-library can support deploying a Discord slash command bot that can start the
-server for us. You'll need a Discord Server and permission to add bots to do
-this.
+The construct can deploy a Discord slash-command bot that starts the server for you. You need a Discord server with permission to add bots.
 
-You need to create a bot in Discord first. Log into the [Discord Developer
-Portal](https://discord.com/developers/applications) and Create an application.
-After accepting the agreement, you'll be presented with the _General
-Information_ page for your Application.
+1. Log into the [Discord Developer Portal](https://discord.com/developers/applications) and create an application. Fill in the _Name_ (e.g. "Satisfactory"). Start notes — you'll need several values.
+2. Copy the **Application Id** from _General Information_.
+3. Click the **Bot** navigation link and click **Add Bot**. When done, click **Copy** next to the **Token** and save it.
+4. Invite the bot: expand **Oauth2** → **URL Generator** in the left navigation, check only the `bot` and `applications.commands` scopes, copy the Generated URL, open it in a new tab, and accept the permissions for your server.
+5. Get your **Guild Id**: in Discord, Settings > Advanced > enable developer mode, then right-click the server name → **Copy ID**.
 
-Continuing with Satisfactory as our example, fill in the _Name_ as Satisfactory.
-You'll want to start a set of notes at this point to gather a few values.
-Collect the Application Id and Public Key for your application.
+### Create the AWS secret
 
-Now, click on the _Bot_ navigation link on the left. Click the _Add Bot_ button.
-Once you have completed the _Add Bot_ request, click on the _Copy_ button for
-the Token. Add the Bot Token to your notes.
+In the [Secrets Manager console](https://console.aws.amazon.com/secretsmanager/listsecrets) (in the region where you deploy), choose **Store a new secret** → **Other Type of Secret** (key/value).
 
-Now, invite the bot to your server. Expand the _Oauth2_ dropdown in the left
-navigation and click on _URL Generator_. We are only clicking two checkboxes here, the _bot_ and _applications.commands_ scope. At the bottom of
-the page, next to the Generated URL field, click the _Copy_ button. Open a new
-tab in your browser, paste that url, and hit enter. Invite your new bot to your
-server and accept the permissions.
-
-The last thing you need is the Guild Id for your server (Guild is what Discord
-calls their servers). To get the server ID for the first parameter, open
-Discord, go to Settings > Advanced, and enable developer mode. Then, right-click
-on the server title and select "_Copy ID_" to get the guild ID. Add that to your
-notes.
-
-### Create an AWS Secret
-
-Now we'll create a secret in AWS Secrets manager. Open the [AWS Secrets
-Manager](console.aws.amazon.com/secretsmanager/listsecrets) console. Be sure to
-select the region where you are deploying your game server. Click _Store a new secret_ and choose _Other Type of Secret_. This will present us with the option to create a Key/value type secret.
-
-You're going to create a secret with the following Keys. Note that the **key
-names have to be exact**, so copy them from here.
+The key names must be exactly:
 
 | Key | Value |
 |-----|-------|
-| PublicKey | < The Public key from your Application > |
-| AppId | < Your Application ID > |
-| GuildId | <Your Guild ID, copied from the server > |
-| BotToken | < The _Token_ we copied from the Bot page in Discord > |
-| Authorization | Bot < _Token_ >|
+| `PublicKey` | The public key from your Application |
+| `AppId` | Your Application ID |
+| `GuildId` | Your Guild ID (from the server) |
+| `BotToken` | The Token copied from the Bot page |
+| `Authorization` | `Bot <token>` (the word "Bot", a space, your token — yes, both `BotToken` and `Authorization` are required) |
 
-Note: The Authorization Value is the word "Bot", a space, and your bot token. Yes, currently this requires two keys.
+You can use the default encryption key. Name it something like `SatisfactoryBotSecret` and remember the name.
 
-For the Encryption key you can choose the default, unless you know you want
-something else.
+### Deploy the bot
 
-Click Next.
-
-For Secret Name enter "SatisfactoryBotSecret", or whatever you want, and
-remember that name for later.
-
-Click Next.
-
-You're not doing anything with this screen, so click Next again.
-
-Now you're on the Review page, just click _Store_.
-
-Your new secret may not show up on the list page right away, just refresh and it
-will show up.
-
-### Deploy the Discord Bot
+Add to the construct:
 
 ``` typescript
 //previous code cut for brevity
-mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
 discord: {
   commandName: 'satisfactory',
-  secretName: 'SatisfactoryBotSecret'
+  secretName: 'SatisfactoryBotSecret',
 },
 ```
 
-Where commandName is the command as it will appear in Discord, so
-"/satisfactory" in the example above. For secretName, that is going to be the
-name of the secret created in the previous step.
-
-That's it. Let's deploy our server.
+`commandName` is how the command appears in Discord (`/satisfactory`); `secretName` is the secret from above.
 
 ``` bash
 npx cdk deploy
 ```
 
-If you accept the security changes the Bot will be deployed to your account.
-This will create an API Gateway, a few AWS Lambda Functions, and a state machine
-in AWS Step Functions. Additionally, some Lambda functions are deployed that act
-as Custom Resources in Cloudformation to register your slash commands with
-Discord.
+This creates an API Gateway, a Step Functions state machine, a few Lambda functions (including custom resources that register the slash commands with Discord), and the supporting glue.
 
-When the deployment completes, you'll see some _Outputs_ mentioned. We need the API Gateway output, it will have a somewhat nonsensical name like Satisfactory.SatisfactoryDiscordBot.....
-
-For example:
+When deployment completes, note the API Gateway URL from the Outputs, e.g.
 
 ```
 Outputs:
 Satisfactory.SatisfactoryDiscordBotDiscordBotListenerLambdaRestApiEndpointCF7F987E = https://randomnumbers.execute-api.us-east-2.amazonaws.com/prod/
 ```
 
-Copy that URL and go back to your Application in the Discord Developer Portal.
-On the _General Information_ page, paste that url into the _INTERACTIONS
-ENDPOINT URL_ field.
+Back in the Developer Portal's _General Information_ page, paste that URL into **INTERACTIONS ENDPOINT URL** and save. Discord verifies it against your API — if it errors, check the secret name and keys.
 
-Click _Save Changes_. Discord will hit your API and make sure
-everything is deployed correctly. If you get an error, go back and check your
-secret names.
+The bot supports exactly two commands:
 
-Congratulations, your discord bot should be active now.
+- `/{commandName} start` — starts the server (desired tasks → 1), or tells you it's already running
+- `/{commandName} status` — reports whether the server is up or down
 
-There are only two bot commands `/{commandName} start` and `/{commandName} status`
-and they aren't customizable at this time. The `start` command will start the
-server (by setting the Desired Task count to 1), or tell you if the server is
-already running. The `status` command will simply tell you whether the server is up or
-down. 
+## Adding logging
 
-## Adding Logging
-
-If your chosen game server container is giving you trouble, you can add logging
+If your game server container is giving you trouble, enable CloudWatch container logging:
 
 ``` typescript
 //previous code cut for brevity
-mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
 logging: new AwsLogDriver({
   streamPrefix: 'SatisfactoryLogs',
   logRetention: RetentionDays.THREE_DAYS,
 }),
 ```
 
-This will generate a default log group in CloudWatch, and keep those logs for 3
-days. A shorter retention time will keep costs down. You can set your own log
-group name by adding a `logGroup: "MyGameServerLogs"` if you want.
+This creates a CloudWatch log group with 3-day retention — shorter retention keeps costs down. Set `logGroup: 'MyGameServerLogs'` to control the group name.
 
-## Tweaking Autoshutdown
-
-If you want to raise or lower the CPU Utilization target for the autoshutdown, or increase the evaluation period you can add the following.
+## Tweaking autoshutdown
 
 ``` typescript
 //previous code cut for brevity
-mountTarget: "/home/steam/.config/Epic/FactoryGame/Saved/SaveGames",
 autoShutdownConfig: {
   cpuUtilizationMin: 5,
-  evaluationPeriods: 6
-}
+  evaluationPeriods: 6,
+},
 ```
 
-If CPU Utilization of your container falls below `cpuUtilizationMin` for
-`evaluationPeriods` the server will be shutdown by setting the Desired Tasks to
-0. The `evaluationPeriods` is 5-minute periods. So in the defaults, Six 5-minute periods is 30 minutes.
-
-So if your CPU Utilization is below 5% for 30 minutes, the server is stopped.
+If the container's CPU utilization stays below `cpuUtilizationMin` for `evaluationPeriods` consecutive 5-minute periods, the desired task count is set to 0. The defaults (5%, 6 periods) mean: idle for 30 minutes → shutdown.
 
 ## Troubleshooting
 
-We will add to this section over time.
+### Game server not starting
 
-### Game Server Not Starting
+Enable [Logging](#adding-logging) — container logs in CloudWatch are the best diagnostic.
 
-The best thing you can do for troubleshooting your game is to enable [Logging](#adding-logging)
+### Everything else
 
-### Everything Else
+[Open a GitHub issue](https://github.com/raykrueger/cdk-game-server/issues).
 
-[Open a github issue](https://github.com/raykrueger/cdk-game-server/issues) :)
+## Contributing
+
+The project is managed by [projen](https://projen.io/): `package.json`, CI workflows, lint config, and related files are generated. To change project configuration, edit `.projenrc.js` and run `npx projen` — don't hand-edit the generated files.
+
+``` bash
+yarn install
+npx projen build   # compile (jsii) + docgen + test + lint + package
+```
+
+Note that the test suite is currently minimal: the CDK synth test is disabled because CI cannot access the Docker socket needed by the asset builds.
+
+## License
+
+[Apache License 2.0](./LICENSE)
