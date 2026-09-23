@@ -58,7 +58,7 @@ export interface GameServerProps {
   readonly cpu?: number;
 
   /**
-   * Memory limit in 1024 incrmements.
+   * Memory limit in 1024 increments.
    * @see https://aws.amazon.com/fargate/pricing/
    * @default DEFAULT_MEMORY
    */
