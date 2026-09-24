@@ -15,6 +15,7 @@ A public-subnet-only VPC runs one ECS Fargate task with a public IP. An EFS file
 ## Contents
 
 - [Prerequisites](#prerequisites)
+- [Breaking changes](#breaking-changes)
 - [Quick start](#quick-start)
 - [Autoshutdown](#autoshutdown)
 - [Adding DNS support](#adding-dns-support)
@@ -30,12 +31,21 @@ A public-subnet-only VPC runs one ECS Fargate task with a public IP. An EFS file
 This library requires working knowledge of AWS: you will create IAM resources and navigate the AWS console at times. If that isn't comfortable, this probably isn't the library for you.
 
 - An AWS account and an IAM user with [API access](https://docs.aws.amazon.com/iam/latest/UserGuide/id_credentials_access-keys.html)
-- [Node.js](https://nodejs.org/) >= 18.20.3
+- [Node.js](https://nodejs.org/) >= 24
 - (Optional) The [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-getting-started.html)
 
 The library is released as a JavaScript npm package with TypeScript typings.
 
 This software is released without warranty. There is no commitment that the cost of running this will be acceptable for your individual budget, and it is in a 0.0.x version state: no backwards-compatibility guarantees, and there will be bugs. You deploy at your own risk.
+
+## Breaking changes
+
+No backwards-compatibility is guaranteed, but breaking changes to the public API are logged here. Check this section before upgrading.
+
+### v0.0.48
+
+- `DomainProps.hostzedZone` renamed to `DomainProps.hostedZone` — typo fix. `cdk-fargate-public-dns` v0.0.33 (now required) uses `hostedZone`, so the old name no longer works at all.
+- Minimum Node.js is now 24 (`engines.node >= 24`), and the `aws-cdk-lib` peer dependency is `^2.270.0` — upgrade your CDK app accordingly.
 
 ## Quick start
 
