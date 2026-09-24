@@ -452,7 +452,7 @@ const domainProps: DomainProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#@raykrueger/cdk-game-server.DomainProps.property.domainName">domainName</a></code> | <code>string</code> | *No description.* |
-| <code><a href="#@raykrueger/cdk-game-server.DomainProps.property.hostzedZone">hostzedZone</a></code> | <code>string</code> | *No description.* |
+| <code><a href="#@raykrueger/cdk-game-server.DomainProps.property.hostedZone">hostedZone</a></code> | <code>string</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.DomainProps.property.assumedRole">assumedRole</a></code> | <code>string</code> | *No description.* |
 
 ---
@@ -467,10 +467,10 @@ public readonly domainName: string;
 
 ---
 
-##### `hostzedZone`<sup>Required</sup> <a name="hostzedZone" id="@raykrueger/cdk-game-server.DomainProps.property.hostzedZone"></a>
+##### `hostedZone`<sup>Required</sup> <a name="hostedZone" id="@raykrueger/cdk-game-server.DomainProps.property.hostedZone"></a>
 
 ```typescript
-public readonly hostzedZone: string;
+public readonly hostedZone: string;
 ```
 
 - *Type:* string

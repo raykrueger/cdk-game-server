@@ -25,7 +25,7 @@ export interface GamePort {
 
 export interface DomainProps {
   readonly assumedRole?: string;
-  readonly hostzedZone: string;
+  readonly hostedZone: string;
   readonly domainName: string;
 }
 

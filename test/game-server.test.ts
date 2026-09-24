@@ -29,7 +29,7 @@ class GameStack extends cdk.Stack {
       }),
       dnsConfig: {
         domainName: 'satisfactory.example.com',
-        hostzedZone: 'xxxxxxxxxxxxxxxxxxxx',
+        hostedZone: 'xxxxxxxxxxxxxxxxxxxx',
         assumedRole: 'arn:aws:iam::1234567890:role/assumed-role',
       },
       gamePorts: [

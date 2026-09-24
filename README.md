@@ -121,13 +121,13 @@ Then add `dnsConfig` to the construct:
 mountTarget: { mountTarget: '/home/steam/.config/Epic/FactoryGame/Saved/SaveGames' },
 dnsConfig: {
   domainName: 'satisfactory.example.com',
-  hostzedZone: 'ZXXXXXXXXXXXXXXXXXXXX',
+  hostedZone: 'ZXXXXXXXXXXXXXXXXXXXX',
   //optional: Delete this if using Route 53 in the same account
   //assumedRole: 'arn:aws:iam::111111111111:role/cross-account-r53-update',
 },
 ```
 
-`domainName` is the fully qualified A record you created; `hostzedZone` is the hosted zone ID (starts with `Z`). For cross-account hosted zones, see the [cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns) docs.
+`domainName` is the fully qualified A record you created; `hostedZone` is the hosted zone ID (starts with `Z`). For cross-account hosted zones, see the [cdk-fargate-public-dns](https://github.com/raykrueger/cdk-fargate-public-dns) docs.
 
 ## Setting up the Discord bot
 
