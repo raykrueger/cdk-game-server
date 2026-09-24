@@ -50,7 +50,7 @@ export interface GameServerProps {
   readonly vpc?: ec2.IVpc;
 
   /**
-   * vCpu amout to be granted to ECS Fargate task.
+   * vCpu amount to be granted to ECS Fargate task.
    *
    * @see https://aws.amazon.com/fargate/pricing/
    * @default DEFAULT_VCPU
@@ -65,7 +65,7 @@ export interface GameServerProps {
   readonly memoryLimitMiB?: number;
 
   /**
-   * Logging driver to use. The Cloudwatch logging driver will incur addtional costs.
+   * Logging driver to use. The Cloudwatch logging driver will incur additional costs.
    *
    * @example logging: new ecs.AwsLogDriver({ streamPrefix: 'EventDemo' })
    *

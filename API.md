@@ -548,7 +548,7 @@ const gameServerProps: GameServerProps = { ... }
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.containerEnv">containerEnv</a></code> | <code>{[ key: string ]: string}</code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.containerInsights">containerInsights</a></code> | <code>boolean</code> | Do we want to enable Cloudwatch Container Insights, and incur additional cost? |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.containerSecrets">containerSecrets</a></code> | <code>{[ key: string ]: aws-cdk-lib.aws_ecs.Secret}</code> | *No description.* |
-| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.cpu">cpu</a></code> | <code>number</code> | vCpu amout to be granted to ECS Fargate task. |
+| <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.cpu">cpu</a></code> | <code>number</code> | vCpu amount to be granted to ECS Fargate task. |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.discord">discord</a></code> | <code><a href="#@raykrueger/cdk-game-server.DiscordCommandOptions">DiscordCommandOptions</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.dnsConfig">dnsConfig</a></code> | <code><a href="#@raykrueger/cdk-game-server.DomainProps">DomainProps</a></code> | *No description.* |
 | <code><a href="#@raykrueger/cdk-game-server.GameServerProps.property.enableExecuteCommand">enableExecuteCommand</a></code> | <code>boolean</code> | *No description.* |
@@ -653,7 +653,7 @@ public readonly cpu: number;
 - *Type:* number
 - *Default:* DEFAULT_VCPU
 
-vCpu amout to be granted to ECS Fargate task.
+vCpu amount to be granted to ECS Fargate task.
 
 > [https://aws.amazon.com/fargate/pricing/](https://aws.amazon.com/fargate/pricing/)
 
@@ -700,7 +700,7 @@ public readonly logging: LogDriver;
 
 Logging driver to use.
 
-The Cloudwatch logging driver will incur addtional costs.
+The Cloudwatch logging driver will incur additional costs.
 
 ---
 
