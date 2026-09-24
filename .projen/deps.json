@@ -92,7 +92,7 @@
     },
     {
       "name": "constructs",
-      "version": "^10.5.1",
+      "version": "^10.8.1",
       "type": "peer"
     },
     {
@@ -105,11 +105,6 @@
     },
     {
       "name": "@raykrueger/cdk-fargate-public-dns",
-      "type": "runtime"
-    },
-    {
-      "name": "constructs",
-      "version": "^10.5.1",
       "type": "runtime"
     }
   ],

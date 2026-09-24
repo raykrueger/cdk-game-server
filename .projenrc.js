@@ -21,8 +21,8 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@raykrueger/cdk-fargate-public-dns',
     '@aws-solutions-constructs/aws-apigateway-lambda',
     '@aws-solutions-constructs/core',
-    'constructs@^10.5.1',
   ],
+  constructsVersion: '10.8.1',
   devDeps: [
     '@types/node',
   ],

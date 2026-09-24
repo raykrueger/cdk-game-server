@@ -42,6 +42,7 @@
     "@typescript-eslint/parser": "^8",
     "aws-cdk-lib": "2.270.0",
     "commit-and-tag-version": "^13",
+    "constructs": "10.8.1",
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.6.3",
     "eslint-plugin-import": "^2.30.0",
@@ -58,13 +59,12 @@
   },
   "peerDependencies": {
     "aws-cdk-lib": "^2.270.0",
-    "constructs": "^10.5.1"
+    "constructs": "^10.8.1"
   },
   "dependencies": {
     "@aws-solutions-constructs/aws-apigateway-lambda": "^2.70.0",
     "@aws-solutions-constructs/core": "^2.70.0",
-    "@raykrueger/cdk-fargate-public-dns": "0.0.21",
-    "constructs": "^10.5.1"
+    "@raykrueger/cdk-fargate-public-dns": "0.0.21"
   },
   "keywords": [
     "cdk"
