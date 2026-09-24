@@ -11,6 +11,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   repositoryUrl: 'https://github.com/raykrueger/cdk-game-server.git',
   releaseToNpm: true,
   npmAccess: NpmAccess.PUBLIC,
+  // Publish to npmjs.org via npm trusted publishing (OIDC). Pre-configured on
+  // the npm side for this repo; no NPM_TOKEN needed. See
+  // https://docs.npmjs.com/trusted-publishers
+  npmTrustedPublishing: true,
   minNodeVersion: '22',
   catalog: {
     announce: false,
