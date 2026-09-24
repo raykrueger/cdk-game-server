@@ -11,6 +11,7 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 ## Commands
 
 - `npx projen build` — full pipeline: compile (jsii) → docgen → test → package. CI runs this and fails on any self-mutation.
+- **Before committing, always run `npx projen build` to completion** (it starts with a re-synth, so it also verifies generated files match `.projenrc.js`) and confirm `git status` is clean afterwards — a clean tree after build is part of the check.
 - `npx projen test` — `jest --passWithNoTests --updateSnapshot` then `eslint`.
 - Single test: `npx jest test/game-server.test.ts` (or pass a `-t` test name to `npx projen test`).
 - `npx projen watch` — `jsii -w` incremental compile.
