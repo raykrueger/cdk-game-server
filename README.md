@@ -42,7 +42,7 @@ This software is released without warranty. There is no commitment that the cost
 
 No backwards-compatibility is guaranteed, but breaking changes to the public API are logged here. Check this section before upgrading.
 
-### v0.0.48
+### v0.1.0
 
 - `DomainProps.hostzedZone` renamed to `DomainProps.hostedZone` — typo fix. `cdk-fargate-public-dns` v0.0.33 (now required) uses `hostedZone`, so the old name no longer works at all.
 - Minimum Node.js is now 24 (`engines.node >= 24`), and the `aws-cdk-lib` peer dependency is `^2.270.0` — upgrade your CDK app accordingly.
