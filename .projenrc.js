@@ -41,4 +41,16 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
 });
 
+// projen's Apache-2.0 template ends in the literal "Copyright [yyyy] [name of
+// copyright owner]" placeholder (it has no $copyright_owner token, so the
+// copyrightOwner/copyrightPeriod options never apply to it). Patch the
+// managed file's content so synth emits a real notice.
+const license = project.tryFindFile('LICENSE');
+if (license) {
+  license.text = license.text.replace(
+    'Copyright [yyyy] [name of copyright owner]',
+    'Copyright 2021-2026 Ray Krueger',
+  );
+}
+
 project.synth();
