@@ -25,6 +25,11 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - `cdkVersion` in `.projenrc.js` controls `aws-cdk-lib` (pinned devDep, `^` peer). Bump it there, not in `package.json`.
 - `npx projen upgrade` bumps *all* deps and is what the `upgrade-main` workflow runs daily.
 
+## Releases / npm publishing
+
+- Publishing to npm uses **npm trusted publishing** (GitHub Actions OIDC, `npmTrustedPublishing: true` in `.projenrc.js`) — there is no `NPM_TOKEN` secret. The trusted publisher is configured on the npm side (package → "Trusted publishers" → this repo / `release.yml`); if publishing suddenly 403s, check that config first.
+- npm is phasing out direct publish with bypass-2FA tokens (targeting Jan 2027); keep using trusted publishing rather than reintroducing a token.
+
 ## Layout
 
 - `src/index.ts` — the `GameServer` construct (VPC, EFS, Fargate task/service, spot capacity). Entry point via `src/index.ts` exports.
