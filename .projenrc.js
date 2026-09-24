@@ -15,7 +15,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
   // the npm side for this repo; no NPM_TOKEN needed. See
   // https://docs.npmjs.com/trusted-publishers
   npmTrustedPublishing: true,
-  minNodeVersion: '22',
+  minNodeVersion: '24',
   catalog: {
     announce: false,
     twitter: 'raykrueger',
