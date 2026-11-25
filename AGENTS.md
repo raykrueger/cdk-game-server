@@ -15,6 +15,7 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - `npx projen test` — `jest --passWithNoTests --updateSnapshot` then `eslint`.
 - Single test: `npx jest test/game-server.test.ts` (or pass a `-t` test name to `npx projen test`).
 - `npx projen watch` — `jsii -w` incremental compile.
+- `npx projen compat` — `jsii-diff` against the published package. **Not wired into CI**; run it by hand before a breaking change. It passes `--ignore-file .compatignore`, which is not tracked in the repo.
 - Compilation is `jsii`, not plain `tsc` — it enforces jsii API constraints (no enums, restricted types) on public exports.
 - On Node versions jsii hasn't tested, compile prints a big warning; silence with `JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION=1` if it obscures real errors.
 
@@ -24,11 +25,22 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - Then re-synth (`npx projen`) and verify with `npx projen build`; commit everything (source + generated) as one `chore:` commit.
 - `cdkVersion` in `.projenrc.js` controls `aws-cdk-lib` (pinned devDep, `^` peer). Bump it there, not in `package.json`.
 - `npx projen upgrade` bumps *all* deps and is what the `upgrade-main` workflow runs daily.
+- Projen records its own version in `package.json` `devDependencies` at synth time, so the `yarn add` + `npx projen` pair is what actually lands the version bump.
+- A projen minor bump usually rewrites CI workflows. As of 0.105 the self-mutation job is its own `.github/workflows/self-mutation.yml` (triggered by `workflow_run` on `build`) instead of a job inside `build.yml`. Still needs the `PROJEN_GITHUB_TOKEN` secret.
 
 ## Releases / npm publishing
 
-- Publishing to npm uses **npm trusted publishing** (GitHub Actions OIDC, `npmTrustedPublishing: true` in `.projenrc.js`) — there is no `NPM_TOKEN` secret. The trusted publisher is configured on the npm side (package → "Trusted publishers" → this repo / `release.yml`); if publishing suddenly 403s, check that config first.
+Releases are fully automatic on push to `main` — nothing is published by hand.
+
+- **Every commit to `main` ships.** `.projenrc.js` does not set `releasableCommits`, so projen defaults to `ReleasableCommits.everyCommit()` — `chore:` and `docs:` commits bump the patch version too. Use `ReleasableCommits.featuresAndFixes()` in `.projenrc.js` if you want only `feat:`/`fix:` to trigger a release.
+- Version comes from conventional commits via `commit-and-tag-version@^13` (`npx projen release` → `bump`). `package.json` in git always says `0.0.0`; `release` bumps, builds, then `unbump` resets it. Never hand-edit `version`.
+- `majorVersion` is projen's default (`ONE`): the first component stays 0 and a breaking change bumps the **minor** slot — that is how `fix!: rename hostzedZone to hostedZone` went `0.0.47 → 0.1.0`.
+- Artifacts (`dist/releasetag.txt`, `dist/version.txt`, `dist/changelog.md`, `dist/js/*.tgz`) are build output only. **`CHANGELOG.md` is not tracked in git** — the generated changelog becomes the GitHub Release body.
+- Merge path is Mergify: squash-merge queue requiring 1 approval plus `build` and `package-js` status checks (`.mergify.yml`).
+- Publishing to npm uses **npm trusted publishing** (GitHub Actions OIDC, `npmTrustedPublishing: true` in `.projenrc.js`) — there is no `NPM_TOKEN` secret. The trusted publisher is configured on the npm side (package → "Trusted publishers" → this repo / `release.yml`); if publishing suddenly 403s, check that config first. `publib-npm` also runs with `NPM_CONFIG_PROVENANCE=true`.
 - npm is phasing out direct publish with bypass-2FA tokens (targeting Jan 2027); keep using trusted publishing rather than reintroducing a token.
+- `release.yml` supports a manual `[DRY RUN]` (`workflow_dispatch` → `dry_run`) which sets `PUBLIB_DRYRUN` and skips `gh release create`. Useful to test release changes without publishing.
+- Only the **js** target is built (`jsii.targets: {}`) — no PyPI/Maven bindings.
 
 ## Layout
 
@@ -36,8 +48,10 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - `src/auto_shutdown.ts`, `src/discord.ts`, `src/discord-state-machine.ts`, `src/discord_bot_custom_resource.ts` — optional feature constructs wired up by `GameServer`.
 - `resources/functions/` — inline **Python** Lambda sources, bundled via `Code.fromAsset` at synth time (do not add non-Lambda build tooling expectations here).
 - `test/game-server.test.ts` — the only test file. The synth test is **commented out** (Docker socket unavailable in GitHub Actions), so the suite currently passes empty (`--passWithNoTests`). Do not "fix" by uncommenting without resolving the CI Docker issue noted in the file.
+- Effective coverage is **zero**: the single live test has a commented-out body, and the one `Template.fromStack` assertion is inside the block comment. If you re-enable it, synthesize with `context: { 'aws:cdk:bundling-stacks': [] }` so `Code.fromAsset` bundling is skipped and no Docker socket is needed.
 
 ## Conventions
 
 - Git: conventional commits, signed (`git commit -s`), no co-authored-by/Generated-by trailers.
-- Version is 0.0.x with no backwards-compatibility guarantees, but CI still runs `jsii-diff` compat checks on release.
+- Version is 0.x with no backwards-compatibility guarantees. `jsii-diff` compat is **not** run by CI — check it manually with `npx projen compat`.
+- Commit messages drive the release, so conventional-commit prefixes matter: `fix!:`/`!` = minor bump, `feat:`/`fix:`/anything else = patch bump.
