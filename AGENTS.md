@@ -30,6 +30,21 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 - Projen records its own version in `package.json` `devDependencies` at synth time, so the `yarn add` + `npx projen` pair is what actually lands the version bump.
 - A projen minor bump usually rewrites CI workflows. As of 0.105 the self-mutation job is its own `.github/workflows/self-mutation.yml` (triggered by `workflow_run` on `build`) instead of a job inside `build.yml`. Still needs the `PROJEN_GITHUB_TOKEN` secret.
 
+## Toolchain versions and their ceilings
+
+Several dev-tool majors are deliberately held back. Check this before "just upgrading" them.
+
+| Package | Pinned to | Why it cannot go higher right now |
+|---|---|---|
+| Node (`minNodeVersion`) | 24 | Sets `engines.node >= 24`, every CI `setup-node`, and `@types/node` |
+| TypeScript | 6.x | `jsii@6` pins `typescript ~6.0`, `jsii@5.9` pins `~5.9`, and `ts-jest` peers `>=4.3 <7`. TS 7 is out until both move |
+| ESLint | 9.x | projen's `Eslint` component only emits `.eslintrc.json` and runs it with `ESLINT_USE_FLAT_CONFIG=false`. ESLint 10 dropped eslintrc: it refuses `.eslintrc.json` and legacy flags, so the `eslint` task breaks. Needs projen flat-config support first |
+| `@stylistic/eslint-plugin` | ^2 | Hardcoded in projen's `Eslint` component (`eslint.js`, only skipped when `eslintOptions.prettier` is on). Requesting `^6` throws a dependency version conflict at synth |
+
+- `jsiiVersion` in `.projenrc.js` moves **jsii and jsii-rosetta together** (`projen/lib/cdk/jsii-build.js` adds both with the same suffix). Bump `typescriptVersion` in the same commit.
+- The jest knob is `jestOptions: { jestVersion: '^30' }` — `jestVersion` is a `JestOptions` field. At the top level projen **silently ignores** it. Projen then pins `@types/jest` to the same range and picks `ts-jest@^29` for jest >= 30.
+- To force a version for a dependency that a projen component also declares, call `project.addDevDeps('name@^X')` **after** construction, next to the LICENSE patch. Components run during construction and `Dependencies.addDependency()` overwrites, so a range in the `devDeps` option gets wiped by the component's versionless `addDevDeps()` call. Seen with `eslint-import-resolver-typescript@^4`.
+
 ## Releases / npm publishing
 
 Releases are fully automatic on push to `main` — nothing is published by hand.
