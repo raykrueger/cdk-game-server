@@ -77,4 +77,11 @@ if (license) {
   );
 }
 
+// projen's Eslint component calls addDevDeps('eslint-import-resolver-typescript')
+// with no version, and Dependencies.addDependency() overwrites, so any version
+// declared in the `devDeps` option above is wiped by that later call. Set it
+// after construction instead. v4 peers eslint "*", so it works on the eslint 9
+// we are pinned to.
+project.addDevDeps('eslint-import-resolver-typescript@^4');
+
 project.synth();

@@ -32,6 +32,7 @@
     },
     {
       "name": "eslint-import-resolver-typescript",
+      "version": "^4",
       "type": "build"
     },
     {
