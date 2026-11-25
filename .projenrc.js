@@ -1,6 +1,6 @@
 const { awscdk, ReleasableCommits } = require('projen');
 const { NodePackageManager } = require('projen/lib/javascript');
-const { NpmAccess } = require('projen/lib/javascript');
+const { NpmAccess, UpdateSnapshot } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
@@ -19,6 +19,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   // typescript <7, which is the ceiling we are under anyway.
   jestOptions: {
     jestVersion: '^30',
+    // projen's default is ALWAYS, which runs jest with --updateSnapshot: a
+    // template snapshot would then be rewritten on every CI run and could never
+    // fail. Never update, and projen adds a separate `test:update` task.
+    updateSnapshot: UpdateSnapshot.NEVER,
   },
   packageManager: NodePackageManager.YARN_CLASSIC,
   defaultReleaseBranch: 'main',

@@ -304,12 +304,27 @@
           "execArgs": [
             "jest",
             "--passWithNoTests",
-            "--updateSnapshot"
+            "--ci"
           ],
           "receiveArgs": true
         },
         {
           "spawn": "eslint"
+        }
+      ]
+    },
+    "test:update": {
+      "name": "test:update",
+      "description": "Update jest snapshots",
+      "steps": [
+        {
+          "execArgs": [
+            "jest",
+            "--updateSnapshot",
+            "--passWithNoTests",
+            "--ci"
+          ],
+          "receiveArgs": true
         }
       ]
     },

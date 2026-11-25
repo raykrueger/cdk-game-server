@@ -251,7 +251,7 @@ yarn install
 npx projen build   # compile (jsii) + docgen + test + lint + package
 ```
 
-Note that the test suite is currently minimal: the CDK synth test is disabled because CI cannot access the Docker socket needed by the asset builds.
+Tests are CloudFormation template tests (`aws-cdk-lib/assertions`) plus one full-stack snapshot, and they run without Docker: each test synthesizes with the `aws:cdk:bundling-stacks: []` context, which tells CDK to skip the Lambda asset bundling that a CI runner's Docker socket can't do. `npx projen test` never rewrites snapshots, so an unintended change to the generated stack fails the build. When a template change is intentional, run `npx projen test:update` and review the `.snap` diff.
 
 ## License
 

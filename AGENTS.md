@@ -12,7 +12,8 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 
 - `npx projen build` — full pipeline: compile (jsii) → docgen → test → package. CI runs this and fails on any self-mutation.
 - **Before committing, always run `npx projen build` to completion** (it starts with a re-synth, so it also verifies generated files match `.projenrc.js`) and confirm `git status` is clean afterwards — a clean tree after build is part of the check.
-- `npx projen test` — `jest --passWithNoTests --updateSnapshot` then `eslint`.
+- `npx projen test` — `jest --passWithNoTests --ci` then `eslint`. Snapshots are never auto-updated, so a template change fails CI instead of silently rewriting the snapshot.
+- `npx projen test:update` — regenerate `test/__snapshots__` when a template change is intentional. Review the diff of the `.snap` file; it is the shape of your customers' stack.
 - Single test: `npx jest test/game-server.test.ts` (or pass a `-t` test name to `npx projen test`).
 - `npx projen watch` — `jsii -w` incremental compile.
 - `npx projen compat` — `jsii-diff` against the published package. **Not wired into CI**; run it by hand before a breaking change. It passes `--ignore-file .compatignore`, which is not tracked in the repo.
@@ -65,8 +66,8 @@ Releases are fully automatic on push to `main` — nothing is published by hand.
 - `src/index.ts` — the `GameServer` construct (VPC, EFS, Fargate task/service, spot capacity). Entry point via `src/index.ts` exports.
 - `src/auto_shutdown.ts`, `src/discord.ts`, `src/discord-state-machine.ts`, `src/discord_bot_custom_resource.ts` — optional feature constructs wired up by `GameServer`.
 - `resources/functions/` — inline **Python** Lambda sources, bundled via `Code.fromAsset` at synth time (do not add non-Lambda build tooling expectations here).
-- `test/game-server.test.ts` — the only test file. The synth test is **commented out** (Docker socket unavailable in GitHub Actions), so the suite currently passes empty (`--passWithNoTests`). Do not "fix" by uncommenting without resolving the CI Docker issue noted in the file.
-- Effective coverage is **zero**: the single live test has a commented-out body, and the one `Template.fromStack` assertion is inside the block comment. If you re-enable it, synthesize with `context: { 'aws:cdk:bundling-stacks': [] }` so `Code.fromAsset` bundling is skipped and no Docker socket is needed.
+- `test/game-server.test.ts` — the only test file: 12 template (`Template.fromStack`) tests plus one full-stack snapshot, ~99% statement coverage of `src/`. It synthesizes with `context: { 'aws:cdk:bundling-stacks': [] }`, which makes CDK skip Lambda asset bundling; without it the suite needs the Docker socket that GitHub Actions runners deny. Keep that context on any new `App` you add here.
+- The snapshot is committed. Because the test task runs `--ci` (projen `updateSnapshot: NEVER`), an unintended CloudFormation change fails the build; run `npx projen test:update` only when the change is meant.
 
 ## Conventions
 

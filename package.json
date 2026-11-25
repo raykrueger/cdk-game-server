@@ -23,6 +23,7 @@
     "pre-compile": "projen pre-compile",
     "release": "projen release",
     "test": "projen test",
+    "test:update": "projen test:update",
     "test:watch": "projen test:watch",
     "unbump": "projen unbump",
     "upgrade": "projen upgrade",
