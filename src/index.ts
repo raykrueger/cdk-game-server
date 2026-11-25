@@ -183,7 +183,10 @@ export class GameServer extends Construct {
     //Create our ECS Cluster
     const cluster = new ecs.Cluster(this, 'Cluster', {
       vpc: this.vpc,
-      containerInsights: this.containerInsights,
+      // `containerInsights` (boolean) is deprecated in aws-cdk-lib. This
+      // mapping is what CDK itself does with the boolean, so the synthesized
+      // ClusterSettings are unchanged; CDK throws if both props are given.
+      containerInsightsV2: this.containerInsights ? ecs.ContainerInsights.ENABLED : ecs.ContainerInsights.DISABLED,
       enableFargateCapacityProviders: true,
     });
     this.cluster = cluster;
