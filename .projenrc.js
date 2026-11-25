@@ -5,6 +5,13 @@ const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
   cdkVersion: '2.278.0',
+  // jsii and jsii-rosetta are added together with this version (see
+  // projen/lib/cdk/jsii-build.js), so one knob moves both. TypeScript has to
+  // move with them: jsii 5.9 pins typescript ~5.9 and jsii 6 pins ~6.0.
+  // The ceiling is 6.x -- ts-jest also requires typescript <7 -- so TS 7 is
+  // off the table until both jsii and ts-jest say otherwise.
+  jsiiVersion: '^6.0.25',
+  typescriptVersion: '^6.0.3',
   packageManager: NodePackageManager.YARN_CLASSIC,
   defaultReleaseBranch: 'main',
   name: '@raykrueger/cdk-game-server',
