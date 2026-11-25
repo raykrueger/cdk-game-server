@@ -4,6 +4,8 @@
 
 ### GameServer <a name="GameServer" id="@raykrueger/cdk-game-server.GameServer"></a>
 
+- *Implements:* constructs.IConstruct, constructs.IDependable
+
 Builds a game server, running on ECS Fargate.
 
 This is designed to run as
