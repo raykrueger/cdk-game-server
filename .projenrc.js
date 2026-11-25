@@ -1,4 +1,4 @@
-const { awscdk } = require('projen');
+const { awscdk, ReleasableCommits } = require('projen');
 const { NodePackageManager } = require('projen/lib/javascript');
 const { NpmAccess } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
@@ -16,6 +16,10 @@ const project = new awscdk.AwsCdkConstructLibrary({
   // https://docs.npmjs.com/trusted-publishers
   npmTrustedPublishing: true,
   minNodeVersion: '24',
+  // projen defaults to ReleasableCommits.everyCommit(), which publishes on
+  // *every* push to main -- including chore:/docs:/ci: commits that change no
+  // shipped code. Only features and fixes should cut a version.
+  releasableCommits: ReleasableCommits.featuresAndFixes(),
   catalog: {
     announce: false,
     twitter: 'raykrueger',

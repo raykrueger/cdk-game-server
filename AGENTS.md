@@ -32,7 +32,8 @@ Projen regenerates: `package.json`, `.eslintrc.json`, `.github/`, `.projen/`, `t
 
 Releases are fully automatic on push to `main` — nothing is published by hand.
 
-- **Every commit to `main` ships.** `.projenrc.js` does not set `releasableCommits`, so projen defaults to `ReleasableCommits.everyCommit()` — `chore:` and `docs:` commits bump the patch version too. Use `ReleasableCommits.featuresAndFixes()` in `.projenrc.js` if you want only `feat:`/`fix:` to trigger a release.
+- **Only `feat:` and `fix:` commits ship.** `.projenrc.js` sets `releasableCommits: ReleasableCommits.featuresAndFixes()` (projen's own default is `everyCommit()`, which published on every push). A push of `chore:`/`docs:`/`ci:` commits still runs `release.yml`, but `bump` reports "No new interesting commits", `dist/releasetag.txt` stays at the current tag, `tag_exists` comes back true, and both publish jobs are skipped. So a chore-only push is release-neutral.
+- Caveat: the type comes from a POSIX-ERE grep on the commit **subject** (`^(feat|fix)(\(scope\))?!?: `), and Mergify squash-merges with the PR title as the subject — so the PR title must be a valid conventional commit or the change never releases.
 - Version comes from conventional commits via `commit-and-tag-version@^13` (`npx projen release` → `bump`). `package.json` in git always says `0.0.0`; `release` bumps, builds, then `unbump` resets it. Never hand-edit `version`.
 - `majorVersion` is projen's default (`ONE`): the first component stays 0 and a breaking change bumps the **minor** slot — that is how `fix!: rename hostzedZone to hostedZone` went `0.0.47 → 0.1.0`.
 - Artifacts (`dist/releasetag.txt`, `dist/version.txt`, `dist/changelog.md`, `dist/js/*.tgz`) are build output only. **`CHANGELOG.md` is not tracked in git** — the generated changelog becomes the GitHub Release body.
@@ -54,4 +55,4 @@ Releases are fully automatic on push to `main` — nothing is published by hand.
 
 - Git: conventional commits, signed (`git commit -s`), no co-authored-by/Generated-by trailers.
 - Version is 0.x with no backwards-compatibility guarantees. `jsii-diff` compat is **not** run by CI — check it manually with `npx projen compat`.
-- Commit messages drive the release, so conventional-commit prefixes matter: `fix!:`/`!` = minor bump, `feat:`/`fix:`/anything else = patch bump.
+- Commit messages drive the release, so conventional-commit prefixes matter, and only `feat:`/`fix:` (optionally with `!` for breaking) are releasable at all. `fix!:` = minor bump, `feat:`/`fix:` = patch/minor; `chore:`/`docs:`/`ci:` never publish — if a dependency or peer-range change must reach consumers, label it `fix:`.
