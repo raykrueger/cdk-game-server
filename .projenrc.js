@@ -34,9 +34,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@aws-solutions-constructs/core@^2.107.0',
   ],
   constructsVersion: '10.8.1',
-  devDeps: [
-    '@types/node',
-  ],
+  // NOTE: deliberately no `devDeps: ['@types/node']` here. projen's
+  // addNodeTypesVersion() bails out if the user declared that dependency, and
+  // then whatever stale range is already in package.json is frozen forever
+  // (it was stuck at ^18 <= 18.11.19). Left alone, projen pins @types/node to
+  // the major of minNodeVersion.
 
   /* Runtime dependencies of this module. */
   // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
