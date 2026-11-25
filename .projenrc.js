@@ -12,6 +12,14 @@ const project = new awscdk.AwsCdkConstructLibrary({
   // off the table until both jsii and ts-jest say otherwise.
   jsiiVersion: '^6.0.25',
   typescriptVersion: '^6.0.3',
+  // One knob drives all three, via JestOptions: projen adds
+  // jest@<jestVersion> and @types/jest@<jestVersion>, and picks ts-jest@^29
+  // itself when the jest major is >29
+  // (projen/lib/typescript/typescript.js). ts-jest 29 supports jest 30 and
+  // typescript <7, which is the ceiling we are under anyway.
+  jestOptions: {
+    jestVersion: '^30',
+  },
   packageManager: NodePackageManager.YARN_CLASSIC,
   defaultReleaseBranch: 'main',
   name: '@raykrueger/cdk-game-server',

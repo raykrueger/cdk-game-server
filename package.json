@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^2",
-    "@types/jest": "^27",
+    "@types/jest": "^30",
     "@types/node": "^24",
     "@typescript-eslint/eslint-plugin": "^8",
     "@typescript-eslint/parser": "^8",
@@ -46,7 +46,7 @@
     "eslint": "^9",
     "eslint-import-resolver-typescript": "^3.10.1",
     "eslint-plugin-import": "^2.32.0",
-    "jest": "^27",
+    "jest": "^30",
     "jest-junit": "^17",
     "jsii": "^6.0.25",
     "jsii-diff": "^1.140.0",
@@ -54,7 +54,7 @@
     "jsii-pacmak": "^1.140.0",
     "jsii-rosetta": "^6.0.25",
     "projen": "^0.105.11",
-    "ts-jest": "^27",
+    "ts-jest": "^29",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
@@ -120,11 +120,13 @@
         }
       ]
     ],
-    "preset": "ts-jest",
-    "globals": {
-      "ts-jest": {
-        "tsconfig": "test/tsconfig.json"
-      }
+    "transform": {
+      "^.+\\.[t]sx?$": [
+        "ts-jest",
+        {
+          "tsconfig": "test/tsconfig.json"
+        }
+      ]
     }
   },
   "types": "lib/index.d.ts",
