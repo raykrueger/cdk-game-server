@@ -4,7 +4,7 @@ const { NpmAccess } = require('projen/lib/javascript');
 const project = new awscdk.AwsCdkConstructLibrary({
   author: 'Ray Krueger',
   authorAddress: 'raykrueger@gmail.com',
-  cdkVersion: '2.270.0',
+  cdkVersion: '2.278.0',
   packageManager: NodePackageManager.YARN_CLASSIC,
   defaultReleaseBranch: 'main',
   name: '@raykrueger/cdk-game-server',
@@ -27,8 +27,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
 
   deps: [
     '@raykrueger/cdk-fargate-public-dns',
-    '@aws-solutions-constructs/aws-apigateway-lambda',
-    '@aws-solutions-constructs/core',
+    // Must stay in step with cdkVersion: these carry a hard dependency on
+    // @aws-cdk/cloud-assembly-schema, and jsii-pacmak fails the package step if
+    // two major versions of it end up in the type system.
+    '@aws-solutions-constructs/aws-apigateway-lambda@^2.107.0',
+    '@aws-solutions-constructs/core@^2.107.0',
   ],
   constructsVersion: '10.8.1',
   devDeps: [

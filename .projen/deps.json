@@ -87,7 +87,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.270.0",
+      "version": "^2.278.0",
       "type": "peer"
     },
     {
@@ -97,10 +97,12 @@
     },
     {
       "name": "@aws-solutions-constructs/aws-apigateway-lambda",
+      "version": "^2.107.0",
       "type": "runtime"
     },
     {
       "name": "@aws-solutions-constructs/core",
+      "version": "^2.107.0",
       "type": "runtime"
     },
     {

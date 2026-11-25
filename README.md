@@ -40,7 +40,12 @@ This software is released without warranty. There is no commitment that the cost
 
 ## Breaking changes
 
-No backwards-compatibility is guaranteed, but breaking changes to the public API are logged here. Check this section before upgrading.
+No backwards-compatibility is guaranteed, but breaking changes to the public API — or to what your CDK app has to provide (Node version, `aws-cdk-lib` version) — are logged here. Check this section before upgrading.
+
+### v0.2.0
+
+- Minimum `aws-cdk-lib` is now `^2.278.0` (was `^2.270.0`). If your app is pinned below 2.278.0 you will get an unmet peer dependency until you upgrade it.
+- Runtime dependencies `@aws-solutions-constructs/aws-apigateway-lambda` and `@aws-solutions-constructs/core` move to `^2.107.0`. They pin `@aws-cdk/cloud-assembly-schema` v54, which cannot coexist with the v55 that `aws-cdk-lib` 2.278.0 pulls in.
 
 ### v0.1.0
 
